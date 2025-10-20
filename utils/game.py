@@ -22,6 +22,9 @@ class Game:
         """
         if player_number < 2:
             raise ValueError("player_number must be at least 2")
+        
+        if max_dice < 1:
+            raise ValueError("max_dice must be at least 1")
 
         # Variables.
         self._active_players = deque(random.sample(range(1, player_number+1), 
