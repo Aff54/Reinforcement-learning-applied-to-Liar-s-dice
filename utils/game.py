@@ -33,6 +33,7 @@ class Game:
         self._game_over = False
         self._last_bet = [1, 0]
         self._max_dice = max_dice
+        self._ranking = []
 
         # Functions.
         self._init_players(player_number, max_dice = max_dice)
@@ -131,7 +132,7 @@ class Game:
             return possible_actions
 
 
-    def _check_dice(self, bet):
+    def _check_dice(self, bet, verbose = True):
         """Check if last bet was correct. 
 
         This function is only triggered when a player calls the last one a liar
@@ -157,7 +158,8 @@ class Game:
         
         # Turn player called the previous one liar.
         if bet == [-1, -1]:
-            print(f"player {current_player} called player {last_player} a liar")
+            if verbose:
+                print(f"player {current_player} called player {last_player} a liar")
             
             # Last player indeed lied.
             if count < quantity:
@@ -168,7 +170,8 @@ class Game:
 
         # Turn player called exact.
         if bet == [0, 0]:
-            print(f"player {current_player} called exact")
+            if verbose:
+                print(f"player {current_player} called exact")
             # Last player said the exact quantity.
             if count == quantity:
                 return 1
@@ -181,7 +184,7 @@ class Game:
 
 
 
-    def make_a_bet(self, bet):
+    def make_a_bet(self, bet, verbose = True):
         """Current player makes a bet.
 
         The player can call a quantity of dice ([quantity, value]), call last player a "liar" ([-1, -1]) or call "exact" ([0, 0]).
@@ -195,31 +198,36 @@ class Game:
         if not self._game_over:
             # Turn player calls "liar" or "exact".
             if bet in [[-1, -1], [0, 0]]:
-                result = self._check_dice(bet)
+                result = self._check_dice(bet, verbose = verbose)
 
                 # Last player indeed lied.
                 if result == 0:
                     self._players[last_player] += -1
                     self._active_players.rotate(1)
-                    print(f"player {last_player} lost a dice")
+                    if verbose:
+                        print(f"player {last_player} lost a dice")
 
                     if self._players[last_player] == 0:
-                        print(f"player {last_player} is out")
-                        self._remove_current_player()
+                        if verbose:
+                            print(f"player {last_player} is out")
+                        self._remove_current_player(verbose = verbose)
 
                 # Turn player was wrong.
                 elif result == -1:
                     self._players[current_player] += -1
-                    print(f"player {current_player} lost a dice")
+                    if verbose:
+                        print(f"player {current_player} lost a dice")
 
                     if self._players[current_player] == 0:
-                        print(f"player {current_player} is out")
-                        self._remove_current_player()
+                        if verbose:
+                            print(f"player {current_player} is out")
+                        self._remove_current_player(verbose = verbose)
 
                 # Turn player called exact and won.
                 else:
                     self._players[current_player] = min(self._players[current_player] + 1, self._max_dice)
-                    print(f"player {current_player} gets a dice back")
+                    if verbose:
+                        print(f"player {current_player} gets a dice back")
                 # Starting a new round.
                 self._new_round()
                 
@@ -242,13 +250,16 @@ class Game:
         return turn_player, possible_actions
 
 
-    def _remove_current_player(self):
+    def _remove_current_player(self, verbose = True):
         """Remove current player.
         """
-        self._active_players.popleft()
+        player_index = self._active_players.popleft()
+        self._ranking = [player_index] + self._ranking
         if len(self._active_players) <=1:
-            print("game ended")
+            if verbose:
+                print("game ended")
             self._game_over = True
+            self._ranking = [self._active_players[0]] + self._ranking
 
 
     def _new_turn(self):
