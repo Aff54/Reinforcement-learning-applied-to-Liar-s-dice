@@ -234,10 +234,10 @@ class Game:
         Returns:
             tuple: (turn player, list of possible actions)
         """
+        turn_player = self._active_players[0]
         if self._game_over == True:
             return (turn_player, [])
 
-        turn_player = self._active_players[0]
         possible_actions = self.get_possible_actions()
         return turn_player, possible_actions
 
