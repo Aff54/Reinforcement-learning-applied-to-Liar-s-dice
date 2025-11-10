@@ -246,8 +246,7 @@ class Game:
         if self._game_over == True:
             return (turn_player, [])
 
-        possible_actions = self.get_possible_actions()
-        return turn_player, possible_actions
+        return turn_player
 
 
     def _remove_current_player(self, verbose = True):
