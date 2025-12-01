@@ -225,7 +225,9 @@ class Game:
 
                 # Turn player called exact and won.
                 else:
-                    self._players[current_player] = min(self._players[current_player] + 1, self._max_dice)
+                    self._players[current_player] = min(
+                        self._players[current_player] + 1, self._max_dice
+                        )
                     if verbose:
                         print(f"player {current_player} gets a dice back")
                 # Starting a new round.
