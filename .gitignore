@@ -9,3 +9,6 @@ computation_optimisation_10_11_2025.ipynb
 data/
 data_analysis.ipynb
 reinforcement_learning.ipynb
+model_analysis.ipynb
+models/
+offline_training/

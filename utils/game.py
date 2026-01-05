@@ -1,3 +1,4 @@
+# ---- Regular Packages ----
 import numpy as np
 import random
 from collections import deque # for ring buffer
@@ -7,6 +8,8 @@ from collections import deque # for ring buffer
 # class definition
 # --------------------------------------------------------
 
+
+# ---- Original game class ----
 class Game:
     
     def __init__(self, player_number, max_dice = 5):
@@ -274,3 +277,122 @@ class Game:
         """
         self._deal_player_hands()
         self._last_bet = [1, 0]
+
+
+# ---- Class made for reinforcement learning ----
+class GameRL(Game):
+
+    def __init__(self, player_number, max_dice = 5):
+
+        super().__init__(player_number, max_dice)
+
+    def get_turn_info(self):
+
+        """Return information regarding the current state of the game
+
+        Returns:
+            self._n_dice (int): number of dice in the game.
+            self._last_bet ([quantity (int), value (int)]): last bet.
+            turn_player (int): turn player number.
+            self._player_hands ([d1 (int), d2 (int), d3 (int), d4 (int), d5 (int)]): dice currently held by the player. Hand size may differ during the game. 
+        """
+        turn_player = self._active_players[0]
+        if self._game_over == True:
+            return (None, None, None, None)
+            
+        return self._n_dice, self._last_bet, turn_player, self._player_hands[turn_player - 1].tolist()
+
+    def get_state(self):
+
+        """Return state of current game.
+
+        Returns:
+            last_player_hand_size (int): number of dice in last player to play's hand.
+            next_player_hand_size (int): number of dice in next player to play's hand.
+            n_dice (int): number of dice in the game.
+            quantity (int): quantity of last bet.
+            value (int): value of last bet.
+            d1, d2, d3, d4, d5 (int): value of each dice in current player's hand. Empty dice are set to 0.
+        """
+        n_dice, [quantity, value], _, player_hand = self.get_turn_info()
+        # Filling player_hand with zeros to match 5 values.
+        player_hand = player_hand + [0]*(self._max_dice - len(player_hand))
+        d1, d2, d3, d4, d5 = player_hand
+        # Getting information about last and next players
+        last_player_index = self._active_players[-1]
+        last_player_hand_size = self._players[last_player_index]
+        next_player_index = self._active_players[1]
+        next_player_hand_size = self._players[next_player_index]
+        
+        state = (last_player_hand_size, 
+                 next_player_hand_size, 
+                 n_dice, 
+                 quantity, 
+                 value, 
+                 d1, d2, d3, d4, d5)
+        
+
+        return state
+
+    def make_a_bet(self, bet, verbose = True):
+        """Current player makes a bet. 
+           Returns the outcome of the bet (used for reinforcement learning).
+
+        The player can call a quantity of dice ([quantity, value]), call last player a "liar" ([-1, -1]) or call "exact" ([0, 0]).
+
+        Args:
+            bet (list): Bet done by the player. Format: [quantity, value].
+
+        Returns:
+            result (int): 0 if last player lied => he will lose a die.
+                         -1 if current player was wrong => current player loses a die.
+                          1 if current player called "exact" and was right => he earns a die back.
+                          2 if the player outbid.
+        """
+        current_player = self._active_players[0]
+        last_player = self._active_players[-1]
+
+        if not self._game_over:
+            # Turn player calls "liar" or "exact".
+            if bet in [[-1, -1], [0, 0]]:
+                result = self._check_dice(bet, verbose = verbose)
+
+                # Last player indeed lied.
+                if result == 0:
+                    self._players[last_player] += -1
+                    self._active_players.rotate(1)
+                    if verbose:
+                        print(f"player {last_player} lost a dice")
+
+                    if self._players[last_player] == 0:
+                        if verbose:
+                            print(f"player {last_player} is out")
+                        self._remove_current_player(verbose = verbose)
+
+                # Turn player was wrong.
+                elif result == -1:
+                    self._players[current_player] += -1
+                    if verbose:
+                        print(f"player {current_player} lost a dice")
+
+                    if self._players[current_player] == 0:
+                        if verbose:
+                            print(f"player {current_player} is out")
+                        self._remove_current_player(verbose = verbose)
+
+                # Turn player called exact and was right.
+                elif result == 1:
+                    self._players[current_player] = min(
+                        self._players[current_player] + 1, self._max_dice
+                        )
+                    if verbose:
+                        print(f"player {current_player} gets a dice back")
+                # Starting a new round.
+                self._new_round()
+                
+            else:
+                self._last_bet = bet
+                self._new_turn()
+                result = 2
+
+        return result
