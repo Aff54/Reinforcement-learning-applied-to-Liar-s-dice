@@ -317,7 +317,6 @@ class GameRL(Game):
         n_dice, [quantity, value], _, player_hand = self.get_turn_info()
         # Filling player_hand with zeros to match 5 values.
         player_hand = player_hand + [0]*(self._max_dice - len(player_hand))
-        d1, d2, d3, d4, d5 = player_hand
         # Getting information about last and next players
         last_player_index = self._active_players[-1]
         last_player_hand_size = self._players[last_player_index]
@@ -329,7 +328,7 @@ class GameRL(Game):
                  n_dice, 
                  quantity, 
                  value, 
-                 d1, d2, d3, d4, d5)
+                 *player_hand)
         
 
         return state
