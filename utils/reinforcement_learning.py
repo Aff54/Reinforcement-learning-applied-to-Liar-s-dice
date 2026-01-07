@@ -60,6 +60,10 @@ class ReplayMemory(object):
         return random.sample(self.memory, batch_size)
     
 
+    def pop(self):
+        return self.memory.pop()
+    
+
     def __len__(self):
         return len(self.memory)
     
