@@ -60,6 +60,26 @@ class ReplayMemory(object):
         return random.sample(self.memory, batch_size)
     
 
+    def split(self, rate):
+        """Splits memory into a training and testing memory.
+
+        Args:
+            rate (float): rate by which we keep transitions 
+            in memory and put the rest in test_memory_length.
+        """
+
+        if not 0 < rate < 1:
+            raise ValueError("rate must be in (0, 1)")
+    
+        memory_length = len(self.memory)
+        test_memory_length = int(memory_length * (1 - rate))
+
+        # Popping transitions from memory + reversing list
+        # for preserving chronological order.
+        self.test_memory = deque([
+            self.memory.pop() for i in range(test_memory_length)
+            ][::-1])
+
     def pop(self):
         return self.memory.pop()
     
