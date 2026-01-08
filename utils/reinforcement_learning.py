@@ -48,7 +48,7 @@ class ReplayMemory(object):
         self.memory.append(self.transitions_tuple(*args))
 
 
-    def sample(self, batch_size = 256):
+    def sample(self, batch_size = 256, source = None):
         """Returns random transitions from memory without replacement.
 
         Args:
@@ -57,7 +57,14 @@ class ReplayMemory(object):
         Returns:
             _type_: transitions tuples.
         """
-        return random.sample(self.memory, batch_size)
+        if source is None:
+            return random.sample(self.memory, batch_size)
+        elif source == "train":
+            return random.sample(self.train_memory, batch_size)
+        elif source == "test":
+            return random.sample(self.test_memory, batch_size)
+        else:
+            raise ValueError(f"Unknown source: {source}")
     
 
     def split(self, rate):
@@ -70,15 +77,17 @@ class ReplayMemory(object):
 
         if not 0 < rate < 1:
             raise ValueError("rate must be in (0, 1)")
+        
+        transition_list = list(self.memory)
+        random.shuffle(transition_list)
+
     
         memory_length = len(self.memory)
-        test_memory_length = int(memory_length * (1 - rate))
-
-        # Popping transitions from memory + reversing list
-        # for preserving chronological order.
-        self.test_memory = deque([
-            self.memory.pop() for i in range(test_memory_length)
-            ][::-1])
+        train_memory_length = int(memory_length * rate)
+        self.train_memory = deque(transition_list[:train_memory_length],
+                                   maxlen = self.capacity)
+        self.test_memory = deque(transition_list[train_memory_length:], 
+                                 maxlen = self.capacity)
 
     def pop(self):
         return self.memory.pop()
@@ -88,10 +97,17 @@ class ReplayMemory(object):
         return len(self.memory)
     
 
-    def get_full_memory(self):
+    def get_full_memory(self, source = None):
         """Returns full memory.
         """
-        return self.memory
+        if source is None:
+            return self.memory
+        elif source == "train":
+            return self.train_memory 
+        elif source == "test":
+            return self.test_memory
+        else:
+            raise ValueError(f"Unknown source: {source}")
 
 
     def load(self, path):
