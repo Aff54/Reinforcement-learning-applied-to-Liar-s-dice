@@ -10,19 +10,19 @@ class ReplayMemory(object):
     """Memory buffer for storing transitions for reinforcement learning.
     """
 
-    def __init__(self, transitions_tuple = None, capacity = 10000):
+    def __init__(self, transitions_tuple, capacity = 10000):
         """Instantiates class.
 
         Args:
             transitions_tuple (namedtuple): named tuple containing transitions.
-            Usual format: namedtuple('Transition',
-                        ('state', 
-                        'action', 
-                        'next_state', 
-                        'reward', 
-                        'legal_actions_mask', 
-                        'new_legal_actions_mask')
-                        )
+            Usual format: namedtuple('Transition', 
+                                    ('state',
+                                    'action',
+                                    'next_state',
+                                    'reward',
+                                    'legal_actions_mask',
+                                    'game_index')
+                                    )
             capacity (int, optional): Amount of transitions kept in memory. 
             Pushing a transition when memory is full will remove the oldest 
             transition.
@@ -59,10 +59,21 @@ class ReplayMemory(object):
         """
         if source is None:
             return random.sample(self.memory, batch_size)
+        
         elif source == "train":
+            if not hasattr(self, "train_memory"):
+                raise RuntimeError(
+                    "train_memory not initialized. Call split(rate) before sample(source='train')."
+                )
             return random.sample(self.train_memory, batch_size)
+        
         elif source == "test":
+            if not hasattr(self, "test_memory"):
+                raise RuntimeError(
+                    "test_memory not initialized. Call split(rate) before sample(source='test')."
+                )
             return random.sample(self.test_memory, batch_size)
+        
         else:
             raise ValueError(f"Unknown source: {source}")
     
