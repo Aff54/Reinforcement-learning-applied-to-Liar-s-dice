@@ -5,7 +5,11 @@ import pickle
 import random
 
 
-# ---- Replay buffer ----
+
+# --------------------------------------------------------
+# ReplayMemory class
+# --------------------------------------------------------
+
 class ReplayMemory(object):
     """Memory buffer for storing transitions for reinforcement learning.
     """
