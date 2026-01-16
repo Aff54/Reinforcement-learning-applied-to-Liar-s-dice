@@ -288,8 +288,7 @@ class Agent():
         action that was taken by the agent.
         :param game_index: Index of current game. For data analysis.
 
-        Raises:
-            ValueError: _description_
+        /!\ legal_actions_mask 
         """
 
         if len(self._reward_history) != len(self._state_history):

@@ -3,7 +3,8 @@ import numpy as np
 import random
 from collections import deque # for ring buffer
 
-
+# ---- Custom Packages ----
+from .action_management import get_possible_actions
 
 # --------------------------------------------------------
 # Functions
@@ -17,13 +18,17 @@ def hand_histogram(player_hand):
 
 
 def bet_histogram(bet):
+        
     counts = [0] * 6
     quantity = bet[0]
     value = bet[1]
+    
+    if value <= 0:
+        return counts
+    
     counts[value -1] = quantity
     return counts
     
-
 
 
 # --------------------------------------------------------
@@ -56,9 +61,11 @@ class Game:
                                                    k=player_number))
         self._n_players = player_number
         self.game_over = False
-        self._last_bet = [1, 0]
+        self.default_bet = [1, 0]
+        self._last_bet = self.default_bet.copy()
         self._max_dice = max_dice
         self._ranking = []
+        self.max_total_dice = self._n_players * self._max_dice
 
         # Functions.
         self._init_players(player_number, max_dice = max_dice)
@@ -85,76 +92,76 @@ class Game:
         self._n_dice = sum(self._players.values())
 
 
-    def get_possible_actions(self):
-        """Return every legal action from last bet.
+    # def get_possible_actions(self):
+    #     """Return every legal action from last bet.
 
-        Returns:
-            list(list): list of every legal bet as [quantity, value]
-        """
-        quantity, value = self._last_bet
+    #     Returns:
+    #         list(list): list of every legal bet as [quantity, value]
+    #     """
+    #     quantity, value = self._last_bet
         
-        # If the number of total dice has been reached.
-        if quantity == self._n_dice:
-            if value == 6:
-                pacos = [
-                    [i, 1]
-                    for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
-                    ]
-                return [[-1, -1], [0, 0]] + pacos
+    #     # If the number of total dice has been reached.
+    #     if quantity == self._n_dice:
+    #         if value == 6:
+    #             pacos = [
+    #                 [i, 1]
+    #                 for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
+    #                 ]
+    #             return [[-1, -1], [0, 0]] + pacos
             
-            elif value == 1:
-                return [[-1, -1], [0, 0]]
+    #         elif value == 1:
+    #             return [[-1, -1], [0, 0]]
             
-            else:
-                pacos = [
-                    [i, 1]
-                    for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
-                    ]
-                upper_values = [
-                    [quantity, j]
-                    for j in range(value + 1, 7)
-                    ]
-                return [[-1, -1], [0, 0]] + pacos + upper_values
+    #         else:
+    #             pacos = [
+    #                 [i, 1]
+    #                 for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
+    #                 ]
+    #             upper_values = [
+    #                 [quantity, j]
+    #                 for j in range(value + 1, 7)
+    #                 ]
+    #             return [[-1, -1], [0, 0]] + pacos + upper_values
 
-        # Last bet was on pacos + the quantity isn't maximal.
-        elif value == 1:
-            pacos = [
-                [i, 1]
-                for i in range(quantity + 1, self._n_dice + 1)
-                ]
-            possible_actions = [[-1, -1], [0, 0]] + pacos
+    #     # Last bet was on pacos + the quantity isn't maximal.
+    #     elif value == 1:
+    #         pacos = [
+    #             [i, 1]
+    #             for i in range(quantity + 1, self._n_dice + 1)
+    #             ]
+    #         possible_actions = [[-1, -1], [0, 0]] + pacos
 
-            if quantity <= self._n_dice // 2:
-                possible_actions += [
-                    [i, j]
-                    for i in range(2 * quantity + 1, self._n_dice + 1)
-                    for j in range(2, 7)
-                    ]
-            return possible_actions
+    #         if quantity <= self._n_dice // 2:
+    #             possible_actions += [
+    #                 [i, j]
+    #                 for i in range(2 * quantity + 1, self._n_dice + 1)
+    #                 for j in range(2, 7)
+    #                 ]
+    #         return possible_actions
         
-        # If it is possible to escalate the value.
-        else:
-            upper_values = [
-                [quantity, j] 
-                for j in range(max(value + 1, 2), 7)
-                ]
-            upper_quantities_values = [
-                [i, j]
-                for i in range(quantity + 1, self._n_dice + 1)
-                for j in range(2, 7)
-                ]
-            possible_actions = upper_values + upper_quantities_values
+    #     # If it is possible to escalate the value.
+    #     else:
+    #         upper_values = [
+    #             [quantity, j] 
+    #             for j in range(max(value + 1, 2), 7)
+    #             ]
+    #         upper_quantities_values = [
+    #             [i, j]
+    #             for i in range(quantity + 1, self._n_dice + 1)
+    #             for j in range(2, 7)
+    #             ]
+    #         possible_actions = upper_values + upper_quantities_values
     
-            # Actions involving pacoses.
-            pacos = [
-                [i, 1]
-                for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
-                ]
-            possible_actions = pacos + possible_actions
-            # If it is not the first turn (default bet is [1, 0] at the beginning).
-            if value > 0:
-                possible_actions = [[-1, -1], [0, 0]] + possible_actions
-            return possible_actions
+    #         # Actions involving pacoses.
+    #         pacos = [
+    #             [i, 1]
+    #             for i in range(int(np.ceil(quantity / 2)), self._n_dice + 1)
+    #             ]
+    #         possible_actions = pacos + possible_actions
+    #         # If it is not the first turn (default bet is [1, 0] at the beginning).
+    #         if value > 0:
+    #             possible_actions = [[-1, -1], [0, 0]] + possible_actions
+    #         return possible_actions
 
 
     def _check_dice(self, bet, verbose = True):
@@ -298,7 +305,7 @@ class Game:
         """Update game for a new round
         """
         self._deal_player_hands()
-        self._last_bet = [1, 0]
+        self._last_bet = self.default_bet.copy()
 
 
 # ---- Class made for reinforcement learning ----
@@ -417,3 +424,34 @@ class GameRL(Game):
                 result = 2
 
         return result
+    
+    def get_n_actions(self):
+        """Returns the total number of possible actions at the beginning 
+        of the game.
+
+        Returns:
+            int: total number of possible.
+        """
+
+        outbid_action_number = 6 * self.max_total_dice
+        challenge_actions_number = 2
+        return outbid_action_number + challenge_actions_number
+    
+    def get_n_states(self):
+        """Returns the length of states. Used for RL.
+
+        Returns:
+            int: states length.
+        """
+
+        state = self.get_state()
+        return len(state)
+    
+    def get_action_dict(self):
+
+        outbid_actions = get_possible_actions(last_bet = self.default_bet, 
+                                              total_dice = self.max_total_dice)
+        challenge_actions = [[-1, -1], [0, 0]]
+        total_action = challenge_actions + outbid_actions
+        action_dict = {tuple(action): i for i, action in enumerate(total_action)}
+        return action_dict
