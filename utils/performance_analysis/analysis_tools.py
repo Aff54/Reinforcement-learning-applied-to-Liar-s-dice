@@ -1,6 +1,6 @@
 # ---- Regular Packages ----
 import numpy as np
-import tqdm
+from tqdm import tqdm
 
 # ---- Custom Packages ----
 from ..game import GameRL
