@@ -14,6 +14,7 @@ def test_agents(max_dice,
                 players_dict, 
                 n_simulation, 
                 reward_dict, 
+                RLAgent_class,
                 tqdm_display = True, 
                 verbose = False):
     
@@ -43,7 +44,7 @@ def test_agents(max_dice,
 
             # Seperating deterministic functions VS RL agents
             player_object = players_dict[turn_player]
-            if isinstance(player_object, RLAgent): # player_object is an Agent class instance.
+            if isinstance(player_object, RLAgent_class): # player_object is an Agent class instance.
 
                 state = game.get_state()
                 action = player_object.select_action(last_bet = last_bet, 

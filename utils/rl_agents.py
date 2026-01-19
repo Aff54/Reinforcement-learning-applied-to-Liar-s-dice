@@ -1,6 +1,7 @@
 # ---- Regular Packages ----
 import numpy as np
 import random
+import math
 
 # ---- Deep Learning Packages ----
 import torch
@@ -10,9 +11,9 @@ import torch.nn as nn
 from .action_management import get_legal_actions_mask, get_possible_actions
 from .reinforcement_learning import ReplayMemory
 
-# --------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Agent class
-# --------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 class RLAgent():
 
@@ -49,9 +50,9 @@ class RLAgent():
         return list(action)
     
 
-# --------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Class for Online Training
-# --------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 
 class RLAgentOnline():
@@ -72,6 +73,7 @@ class RLAgentOnline():
         self.action_dict = action_dict
         self.reward_dict = reward_dict
         self.reverse_action_dict = reverse_action_dict
+        self.__name__ = "RLAgentOnline_instance"
 
         self._mask_function = get_legal_actions_mask
 
@@ -231,3 +233,70 @@ class RLAgentOnline():
                               game_index)
     
                 self._rest_histories()
+
+
+# ------------------------------------------------------------------------------
+# Epsilon scheduler class
+# ------------------------------------------------------------------------------
+
+
+class EpsilonScheduler:
+    """
+    Epsilon decay scheduler for epsilon-greedy policy.
+
+    Common usage pattern:
+        eps = scheduler.get_epsilon()
+        # use eps to choose action
+        scheduler.step()
+
+    Parameters
+    ----------
+    eps_max : float
+        Initial epsilon.
+    eps_min : float
+        Lower bound for epsilon.
+    tau : float
+        Decay time constant (units = steps.
+    """
+    def __init__(self, eps_max = 1.0, eps_min = 0.2, tau = 10000):
+        if not (0 <= eps_min <= eps_max <= 1):
+            raise ValueError("Require 0 <= eps_min <= eps_max <= 1")
+        if tau <= 0:
+            raise ValueError("tau must be positive")
+
+        self.eps_max = eps_max
+        self.eps_min = eps_min
+        self.tau = tau
+
+        self._step_count = 0
+        self._epsilon = self.eps_max
+        self.epsilon_history = [self._epsilon]
+
+    def step(self):
+        """Updates epsilon by one step."""
+        self._step_count += 1
+        # exponential decay:
+        self._epsilon = self.eps_min + (self.eps_max - self.eps_min) * math.exp(- self._step_count / self.tau)
+        self.epsilon_history.append(self._epsilon)
+
+    def get_epsilon(self):
+        """Return current epsilon."""
+        return self._epsilon
+
+    def reset(self, keep_history: bool = False):
+        """Reset scheduler to initial state."""
+        self._step_count = 0
+        self._epsilon = self.eps_max
+        if not keep_history:
+            self.epsilon_history = [self._epsilon]
+
+    @property
+    def step_count(self):
+        return self._step_count
+
+    def set_epsilon(self, value: float):
+        """Forcefully set epsilon (for experiments)."""
+        if not (0 <= value <= 1):
+            raise ValueError("epsilon must be in [0, 1]")
+        self._epsilon = value
+        self.epsilon_history.append(self._epsilon)
