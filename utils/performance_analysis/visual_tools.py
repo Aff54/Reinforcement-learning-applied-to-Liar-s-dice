@@ -44,3 +44,7 @@ def plot_pie_charts(ranking_array):
             autotext.set_color('white')
         suffix = {1: "st", 2: "nd", 3: "rd"}.get(place, "th")
         _ = ax[place - 1].set_title(f"{str(place) + suffix} place distribution among players")
+
+    fig.tight_layout()
+
+    return fig

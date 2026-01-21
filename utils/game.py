@@ -178,15 +178,15 @@ class Game:
                 -1 if current player was wrong => current player loses a die.
                 1 if current player called "exact" and was right => he earns a die back.
         """
-        total_dice = np.concatenate(self._player_hands)
+        total_dice_values = np.concatenate(self._player_hands)
         quantity, value = self._last_bet
         current_player = self.active_players[0]
         last_player = self.active_players[-1]
 
-        count = np.count_nonzero(total_dice == value)
+        count = np.count_nonzero(total_dice_values == value)
         # Counting pacoses.
         if value > 1:
-            count += np.count_nonzero(total_dice == 1)
+            count += np.count_nonzero(total_dice_values == 1)
         
         # Turn player called the previous one liar.
         if bet == [-1, -1]:
@@ -308,6 +308,14 @@ class Game:
         self._last_bet = self.default_bet.copy()
 
 
+    def remove_player(self, player_index):
+        """Remove given player from the game.
+        """
+        self.active_players.remove(player_index)
+        self._new_round()
+
+
+
 # ---- Class made for reinforcement learning ----
 class GameRL(Game):
 
@@ -411,8 +419,10 @@ class GameRL(Game):
                 # Turn player called exact and was right.
                 elif result == 1:
                     self._players[current_player] = min(
-                        self._players[current_player] + 1, self._max_dice
+                        self._players[current_player] + 1, 
+                        self._max_dice
                         )
+                    
                     if verbose:
                         print(f"player {current_player} gets a dice back")
                 # Starting a new round.
