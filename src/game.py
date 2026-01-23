@@ -57,7 +57,7 @@ class Game:
             raise ValueError("max_dice must be at least 1")
 
         # Variables.
-        self.active_players = deque(random.sample(range(1, player_number+1), 
+        self._active_players = deque(random.sample(range(1, player_number+1), 
                                                    k=player_number))
         self._n_players = player_number
         self.game_over = False
@@ -79,17 +79,18 @@ class Game:
             player_number (int): number of total player at the start of the game.
             max_dice (_type_): number of dice each player starts with. Defaults to 5.
         """
-        self._players = {i: max_dice for i in range(1, player_number + 1)}
+        self._player_dice_number = {i: max_dice 
+                                    for i in range(1, player_number + 1)}
 
 
     def _deal_player_hands(self):
         """Distributes dice to every player.
         """
         self._player_hands = [
-            np.random.randint(1, 7, size=self._players[i]) 
+            np.random.randint(1, 7, size=self._player_dice_number[i]) 
             for i in range(1, self._n_players + 1)
             ]
-        self._n_dice = sum(self._players.values())
+        self._n_dice = sum(self._player_dice_number.values())
 
 
     def _check_dice(self, bet, verbose = True):
@@ -108,8 +109,8 @@ class Game:
         """
         total_dice_values = np.concatenate(self._player_hands)
         quantity, value = self._last_bet
-        current_player = self.active_players[0]
-        last_player = self.active_players[-1]
+        current_player = self._active_players[0]
+        last_player = self._active_players[-1]
 
         count = np.count_nonzero(total_dice_values == value)
         # Counting pacoses.
@@ -152,8 +153,8 @@ class Game:
         Args:
             bet (list): Bet done by the player. Format: [quantity, value].
         """
-        current_player = self.active_players[0]
-        last_player = self.active_players[-1]
+        current_player = self._active_players[0]
+        last_player = self._active_players[-1]
 
         if not self.game_over:
             # Turn player calls "liar" or "exact".
@@ -162,31 +163,32 @@ class Game:
 
                 # Last player indeed lied.
                 if result == 0:
-                    self._players[last_player] += -1
-                    self.active_players.rotate(1)
+                    self._player_dice_number[last_player] += -1
+                    self._active_players.rotate(1)
                     if verbose:
                         print(f"player {last_player} lost a dice")
 
-                    if self._players[last_player] == 0:
+                    if self._player_dice_number[last_player] == 0:
                         if verbose:
                             print(f"player {last_player} is out")
                         self._remove_current_player(verbose = verbose)
 
                 # Turn player was wrong.
                 elif result == -1:
-                    self._players[current_player] += -1
+                    self._player_dice_number[current_player] += -1
                     if verbose:
                         print(f"player {current_player} lost a dice")
 
-                    if self._players[current_player] == 0:
+                    if self._player_dice_number[current_player] == 0:
                         if verbose:
                             print(f"player {current_player} is out")
                         self._remove_current_player(verbose = verbose)
 
                 # Turn player called exact and won.
                 else:
-                    self._players[current_player] = min(
-                        self._players[current_player] + 1, self._max_dice
+                    self._player_dice_number[current_player] = min(
+                        self._player_dice_number[current_player] + 1,
+                          self._max_dice
                         )
                     if verbose:
                         print(f"player {current_player} gets a dice back")
@@ -204,7 +206,7 @@ class Game:
         Returns:
             tuple: (turn player, list of possible actions)
         """
-        turn_player = self.active_players[0]
+        turn_player = self._active_players[0]
         if self.game_over == True:
             return (turn_player, [])
 
@@ -214,19 +216,19 @@ class Game:
     def _remove_current_player(self, verbose = True):
         """Remove current player.
         """
-        player_index = self.active_players.popleft()
+        player_index = self._active_players.popleft()
         self._ranking = [player_index] + self._ranking
-        if len(self.active_players) <=1:
+        if len(self._active_players) <=1:
             if verbose:
                 print("game ended")
             self.game_over = True
-            self._ranking = [self.active_players[0]] + self._ranking
+            self._ranking = [self._active_players[0]] + self._ranking
 
 
     def _new_turn(self):
         """Make the game update for next player to play
         """
-        self.active_players.rotate(-1)
+        self._active_players.rotate(-1)
 
 
     def _new_round(self):
@@ -239,9 +241,27 @@ class Game:
     def remove_player(self, player_index):
         """Remove given player from the game.
         """
-        self.active_players.remove(player_index)
+        self._player_dice_number[player_index] = 0
+        self._active_players.remove(player_index)
         self._new_round()
 
+
+    # -- Properties --
+    @property
+    def active_players(self):
+        return self._active_players
+    
+    @property
+    def player_hands(self):
+        return self._player_hands
+
+    @property
+    def n_dice(self):
+        return self._n_dice
+    
+    @property
+    def last_bet(self):
+        return self._last_bet
 
 
 # ---- Class made for reinforcement learning ----
@@ -261,11 +281,11 @@ class GameRL(Game):
             turn_player (int): turn player number.
             self._player_hands ([d1 (int), d2 (int), d3 (int), d4 (int), d5 (int)]): dice currently held by the player. Hand size may differ during the game. 
         """
-        turn_player = self.active_players[0]
+        turn_player = self._active_players[0]
         if self.game_over == True:
             return (None, None, None, None)
             
-        return self._n_dice, self._last_bet, turn_player, self._player_hands[turn_player - 1].tolist()
+        return self.n_dice, self.last_bet, turn_player, self.player_hands[turn_player - 1].tolist()
 
     def get_state(self):
 
@@ -284,10 +304,10 @@ class GameRL(Game):
         player_hand_histogram = hand_histogram(player_hand)
         last_bet_histogram = bet_histogram([quantity, value])
         # Getting information about last and next players
-        last_player_index = self.active_players[-1]
-        last_player_hand_size = self._players[last_player_index]
-        next_player_index = self.active_players[1]
-        next_player_hand_size = self._players[next_player_index]
+        last_player_index = self._active_players[-1]
+        last_player_hand_size = self._player_dice_number[last_player_index]
+        next_player_index = self._active_players[1]
+        next_player_hand_size = self._player_dice_number[next_player_index]
         
         state = (last_player_hand_size, 
                  next_player_hand_size, 
@@ -313,8 +333,8 @@ class GameRL(Game):
                           1 if current player called "exact" and was right => he earns a die back.
                           2 if the player outbid.
         """
-        current_player = self.active_players[0]
-        last_player = self.active_players[-1]
+        current_player = self._active_players[0]
+        last_player = self._active_players[-1]
 
         if not self.game_over:
             # Turn player calls "liar" or "exact".
@@ -323,31 +343,31 @@ class GameRL(Game):
 
                 # Last player indeed lied.
                 if result == 0:
-                    self._players[last_player] += -1
-                    self.active_players.rotate(1)
+                    self._player_dice_number[last_player] += -1
+                    self._active_players.rotate(1)
                     if verbose:
                         print(f"player {last_player} lost a dice")
 
-                    if self._players[last_player] == 0:
+                    if self._player_dice_number[last_player] == 0:
                         if verbose:
                             print(f"player {last_player} is out")
                         self._remove_current_player(verbose = verbose)
 
                 # Turn player was wrong.
                 elif result == -1:
-                    self._players[current_player] += -1
+                    self._player_dice_number[current_player] += -1
                     if verbose:
                         print(f"player {current_player} lost a dice")
 
-                    if self._players[current_player] == 0:
+                    if self._player_dice_number[current_player] == 0:
                         if verbose:
                             print(f"player {current_player} is out")
                         self._remove_current_player(verbose = verbose)
 
                 # Turn player called exact and was right.
                 elif result == 1:
-                    self._players[current_player] = min(
-                        self._players[current_player] + 1, 
+                    self._player_dice_number[current_player] = min(
+                        self._player_dice_number[current_player] + 1, 
                         self._max_dice
                         )
                     
