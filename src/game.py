@@ -245,6 +245,12 @@ class Game:
         self._active_players.remove(player_index)
         self._new_round()
 
+    def summerize(self):
+        """Prints a summary of game set-up.
+        """
+        print("Hands:", [hand.tolist() for hand in self.player_hands], "\n"
+              "Player order (left to right):", self.active_players)
+
 
     # -- Properties --
     @property
@@ -262,6 +268,10 @@ class Game:
     @property
     def last_bet(self):
         return self._last_bet
+    
+    @property
+    def ranking(self):
+        return self._ranking
 
 
 # ---- Class made for reinforcement learning ----
