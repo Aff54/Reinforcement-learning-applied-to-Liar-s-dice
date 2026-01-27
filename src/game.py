@@ -245,7 +245,7 @@ class Game:
         self._active_players.remove(player_index)
         self._new_round()
 
-    def summerize(self):
+    def summarize(self):
         """Prints a summary of game set-up.
         """
         print("Hands:", [hand.tolist() for hand in self.player_hands], "\n"
