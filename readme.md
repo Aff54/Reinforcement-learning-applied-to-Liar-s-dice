@@ -5,7 +5,7 @@ A reinforcement learning application to Liar's Dice.
 ## Overview
 This project explores the application of deep reinforcement learning to Liar’s Dice, a dice and bet-based imperfect-information game.  
 Current document presents Liar's dice game mechanics, reinforcement learning theory with deep learning components and their application. 
-The demo notebook showcases how to use the code I wrote for simulating games and training an agent with reinforcement learning.
+The demo notebook showcases how to use the code I wrote for simulating games and training an agent using deep reinforcement learning.
 
 ## Key Features
 - Custom Liar’s Dice game environment in Python.
@@ -17,26 +17,37 @@ The demo notebook showcases how to use the code I wrote for simulating games and
 - Detailed analysis in an interactive notebook.
 
 ## Table of contents
-1. [Introduction](#introduction)
-2. [Some paragraph](#paragraph1)
-    1. [Sub paragraph](#subparagraph1)
-3. [Another paragraph](#paragraph2)
+1. [Liar's dice game presentation](#game_presentation)  
+
+2. [Reinforcement learning theory](#rl_theory)  
+    2.1 [General idea](#)  
+    2.2 [Q learning](#)  
+    2.3 [DQN algorithm](#)  
+    2.4 [DDQN update](#)
+
+3. [Training an agant with reinforcement learning](#rl_application)  
+    3.1 [RL framework application](#)  
+    3.2 [Training loop](#)  
+    3.3 [Result analysis](#)
+
+4. [Possible improvements](#possible_improvements)
 
 
-## This is the introduction <a name="introduction"></a>
-Some introduction text, formatted in heading 2 style
 
-## Some paragraph <a name="paragraph1"></a>
-The first paragraph text
+## 1. Liar's dice game explanation <a name="game_presentation"></a>
 
-### Sub paragraph <a name="subparagraph1"></a>
-This is a sub paragraph, formatted in heading 3 style
 
-## Another paragraph <a name="paragraph2"></a>
-The second paragraph text
+## 2. Reinforcement learning theory <a name="rl_theory"></a>
 
+
+## 3. Training an agant with reinforcement learning <a name="rl_application"></a>
+
+
+## 4. Possible improvements <a name="possible_improvements"></a>
 
 
 ## Sources
 - PyTorch's reinforcement learning tutorial : https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 - DDQN algorithm explanation : https://apxml.com/courses/intermediate-reinforcement-learning/chapter-3-dqn-improvements-variants/double-dqn-ddqn
+
+## Licence
