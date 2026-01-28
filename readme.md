@@ -90,20 +90,43 @@ Many Liar’s Dice variants exist; only the rules described above are implemente
 ## 2. Reinforcement learning theory <a name="rl_theory"></a>
 
 ### 2.1 Core idea <a name="core_idea"></a>
-Reinforcement learning (RL) is a branch of Machine Learning and optimal control. It is a framework for training an agent to evolve in an environment by interacting with it. The main difference between RL and dynamic programing (its deterministic counterpart), lies in action outcome uncertainty: an action taken in a certain context may not produce the same outcome every time.
+Reinforcement learning (RL) is a branch of machine learning. It is a framework for training agents to make decisions in an environment by interacting with it.
+An RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple  
+$(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
 
-RL classic terminology is:
-- the state the agent is at time $t$ is $S_t$, lives in the State space $\mathcal{S}$
-- the action taken by the agent at time $t$ is $A_t$, lives in the Action space $\mathcal{A}$
-- the probability of the agent transitioning from state $s$ to $s'$ by taking action $a$ is $\mathbb{P}(S_{t+1} = s' |S_t = s, A_t = a)$
-- the reward received at time $t$, written $R_t$ and the reward for taking action taken $a$ in state $s$ is $\mathcal{R_{s,a}}$
-- the functions giving the probability of the agent choosing action $a$ in state $s$ $\pi(a|s) = \mathbb{P}(A_t = a | S_t = s)$ is called a policy $\pi$
-- the discounted return $G = \sum_{n = 0}^{\infty} \gamma^n R_n$, with $\gamma \in (0, 1)$, corresponds to the discounted sum of every reward the agent will receive in the future
-- the Q-value of the pair $(s, a)$ under policy $\pi$, written $Q_{\pi}(s,a) = \mathbb{E}[G | s, a, \pi]$, is the expected sum of every reward the agent would receive by taking action $a$ in state $s$
+- $\mathcal{S}$ is the state space and $\mathcal{A}$ the action space,
+- $\mathbb{P}(s' \mid s, a)$ is the probability of transitioning from state $s$ to $s'$ after taking action $a$,
+- $r(s,a,s')$ is the reward for taking action $a$ in state $s$ and transitioning to $s'$,
+- $\gamma \in (0,1)$ is the discount factor.
 
-The goal of RL is to find $\pi^*$ such that $Q_{\pi^*}(s,a) = max_{\pi}Q_{\pi}(s,a), \forall (s, a)$.
+At time $t$, the agent observes a state $S_t \in \mathcal{S}$, selects an action $A_t \in \mathcal{A}$ according to a policy  
+$\pi(a \mid s) = \mathbb{P}(A_t = a \mid S_t = s)$, receives a reward $R_{t+1}$, and transitions to the next state $S_{t+1}$.
 
-### 2.2 Q learning <a name="q_learning"></a>
+The **action-value function** (Q-function) under a policy $\pi$ is defined as the expected discounted sum of future rewards obtained by taking action $a$ in state $s$:
+$$
+Q_{\pi}(s,a) =
+\mathbb{E}_{\pi}\Big[\sum_{k=0}^{\infty} \gamma^{k} R_{t+k+1}
+\,\Big|\, S_t = s, A_t = a\Big].
+$$
+
+The goal of reinforcement learning is to find an optimal policy $\pi^*$ that maximizes the Q-function:
+$$
+Q_{\pi^*}(s,a) = \max_{\pi} Q_{\pi}(s,a).
+$$
+
+The optimal Q-function satisfies the **Bellman optimality equation**:
+$$
+Q_{\pi^*}(s,a) =
+\mathbb{E}_{s' \sim \mathbb{P}(\cdot \mid s,a)}
+\Big[r(s,a,s') + \gamma \max_{a'} Q_{\pi^*}(s',a')\Big].
+$$
+
+### 2.2 Q-learning <a name="q_learning"></a>
+Q-learning is an algorithm made for finding the optimal policy $\pi^*$ by iteratively solving Bellman's optimality equation.
+
+The main ideas are:
+- listing every (state,action) pair in a table, refered to as the Q-table, and randomly initialize every Q-value Q(s,a) in it
+- fixing $\pi$ so that the agent will always take the action with the highest Q-value: $A_t = argmax_{a}Q(s,a)$
  
 ## 3. Training an agant with reinforcement learning <a name="rl_application"></a>
 
