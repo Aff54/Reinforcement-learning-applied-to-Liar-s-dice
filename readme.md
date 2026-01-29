@@ -159,16 +159,16 @@ This allows the agent to first explore a wide range of strategies and gradually 
 ### 2.3 DQN algorithm <a name="DQN_algorithm"></a>
 A major limitation of tabular Q-learning is that it becomes impractical when the state or action space is large.
 
-Deep Q-Networks (DQN) address this limitation by approximating the **Q-function** with a neural network
+Deep Q-Networks (DQN) address this limitation by approximating the **Q-function** with a **policy neural network**
 $Q_\theta$ parameterized by weights $\theta$.
 
 Rather than solving Bellman’s optimality equation directly, DQN minimizes the **temporal-difference (TD) error**
 between the current Q-value estimate and a target value.
 
 TD error is defined as:
-$$
+```math
 Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big]
-$$
+```
 where $Q_{\theta^-}$ is a **target network** whose parameters are held fixed for several training steps to stabilize learning.
 
 The Q-network is trained by minimizing the loss:
@@ -185,11 +185,22 @@ The training loop follows these steps:
 - the target network weights $\theta^-$ are periodically updated with $\theta^- \leftarrow \tau \theta + (1 - \tau) \theta^-$.
 
 ### 2.4 DDQN update <a name="DDQN_update"></a>
+During DDQN training, the **Q-network** tend overestimate state-action values which can lead to a suboptimal policy and unstable training.
+
+As a solution, the **double DQN (DDQN)** updates the TD error to:
+$$
+Q_{\theta}(s, a) - \big[r + \gamma  Q_{\theta^-}(s', \argmax_{a'}Q_{\theta}(s', a')) \big]
+$$
+
+This way, the action in the target value is selected using the **policy network** but its Q-value is computed by the **target network**.
+
+## 3. Training an agent with reinforcement learning <a name="rl_application"></a>
 
 
-## 3. Training an agant with reinforcement learning <a name="rl_application"></a>
 
 ### 3.1 Environment setup <a name="env_setup"></a>  
+
+This project aimed at training an agent to play Liar's dice against 2 to 4 opponent.
 
 #### <u> Deterministic policies to beat :</u>
 In order to represent three types of player, for the rl agent to play against, we defined **three distinct policies**:
@@ -248,6 +259,7 @@ Here are the parameters used in [demo](demo.ipynb):
 
 ## Sources
 - PyTorch's reinforcement learning tutorial : https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+- Methods for improving DQN: https://towardsdatascience.com/techniques-to-improve-the-performance-of-a-dqn-agent-29da8a7a0a7e/
 - DDQN algorithm explanation : https://apxml.com/courses/intermediate-reinforcement-learning/chapter-3-dqn-improvements-variants/double-dqn-ddqn
 
 ## Licence
