@@ -103,23 +103,23 @@ At time $t$, the agent observes a state $S_t \in \mathcal{S}$, selects an action
 $\pi(a \mid s) = \mathbb{P}(A_t = a \mid S_t = s)$, receives a reward $R_{t+1}$, and transitions to the next state $S_{t+1}$.
 
 The **action-value function** (Q-function) under a policy $\pi$ is defined as the expected discounted sum of future rewards obtained by taking action $a$ in state $s$:
-$$
+```math
 Q_{\pi}(s,a) =
 \mathbb{E}_{\pi}\Big[\sum_{t=1}^{\infty} \gamma^{t} R_{t}
 \,\Big|\, S = s, A = a\Big].
-$$
+```
 
 The goal of reinforcement learning is to find an optimal policy $\pi^*$ that maximizes the Q-function:
-$$
+```math
 Q_{\pi^*}(s,a) = \max_{\pi} Q_{\pi}(s,a).
-$$
+```
 
 The optimal Q-function satisfies the **Bellman optimality equation**:
-$$
+```math
 Q_{\pi^*}(s,a) =
 \mathbb{E}_{s' \sim \mathbb{P}(\cdot \mid s,a)}
 \Big[r(s,a,s') + \gamma \max_{a'} Q_{\pi^*}(s',a')\Big].
-$$
+```
 
 ### 2.2 Q-learning <a name="q_learning"></a>
 
@@ -135,16 +135,16 @@ The agent then interacts with the environment. At each interaction step, it:
 - updates the corresponding Q-value using the Bellman optimality target.
 
 The Q-learning update rule is:
-$$
+```math
 Q(s,a) \leftarrow (1- \alpha)Q(s,a)
 + \alpha \Big[r + \gamma \max_{a'} Q(s',a')\Big],
-$$
+```
 where $\alpha \in (0,1)$ is the learning rate.
 
 By repeatedly applying this update, the **Q-function** converges toward the **optimal Q-function**, and an optimal policy can be:
-$$
+```math
 \pi^*(s) = \arg\max_a Q(s,a).
-$$
+```
 
 The **exploration strategy** used in this project is $\varepsilon$-greedy:
 - at time $t$ and state $s$, the agent chooses a random action  
@@ -172,10 +172,10 @@ Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big]
 where $Q_{\theta^-}$ is a **target network** whose parameters are held fixed for several training steps to stabilize learning.
 
 The Q-network is trained by minimizing the loss:
-$$
+```math
 \mathcal{L}(\theta) = \sum_{(s, a, r, s')} l\big(
 Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big] \big)
-$$
+```
 on a set of $(s, a, r, s')$ tuples stored inside a **replay buffer**. Usually, the loss function $l$ used for DQN is the Huber loss.
 
 The training loop follows these steps:
@@ -188,9 +188,9 @@ The training loop follows these steps:
 During DDQN training, the **Q-network** tend overestimate state-action values which can lead to a suboptimal policy and unstable training.
 
 As a solution, the **double DQN (DDQN)** updates the TD error to:
-$$
+```math
 Q_{\theta}(s, a) - \big[r + \gamma  Q_{\theta^-}(s', \argmax_{a'}Q_{\theta}(s', a')) \big]
-$$
+```
 
 This way, the action in the target value is selected using the **policy network** but its Q-value is computed by the **target network**.
 
