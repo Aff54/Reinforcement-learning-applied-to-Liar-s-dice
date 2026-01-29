@@ -37,8 +37,8 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 2. [Reinforcement learning theory](#rl_theory)  
     2.1 [General idea](#general_idea)  
     2.2 [Q learning](#q_learning)  
-    2.3 [DQN algorithm](#)  
-    2.4 [DDQN update](#)
+    2.3 [DQN algorithm](#DQN_algorithm)  
+    2.4 [DDQN update](#DDQN_update)
 
 3. [Training an agant with reinforcement learning](#rl_application)  
     3.1 [Environment setup](#env_setup)  
@@ -90,7 +90,7 @@ Many Liar’s Dice variants exist; only the rules described above are implemente
 ## 2. Reinforcement learning theory <a name="rl_theory"></a>
 
 ### 2.1 Core idea <a name="core_idea"></a>
-Reinforcement learning (RL) is a branch of machine learning. It is a framework for training agents to make decisions in an environment by interacting with it.
+Reinforcement learning (RL) is a branch of machine learning. It is a framework for training agents to make decisions in an environment by interacting with it.  
 An RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple  
 $(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
 
@@ -105,8 +105,8 @@ $\pi(a \mid s) = \mathbb{P}(A_t = a \mid S_t = s)$, receives a reward $R_{t+1}$,
 The **action-value function** (Q-function) under a policy $\pi$ is defined as the expected discounted sum of future rewards obtained by taking action $a$ in state $s$:
 $$
 Q_{\pi}(s,a) =
-\mathbb{E}_{\pi}\Big[\sum_{k=0}^{\infty} \gamma^{k} R_{t+k+1}
-\,\Big|\, S_t = s, A_t = a\Big].
+\mathbb{E}_{\pi}\Big[\sum_{t=1}^{\infty} \gamma^{t} R_{t}
+\,\Big|\, S = s, A = a\Big].
 $$
 
 The goal of reinforcement learning is to find an optimal policy $\pi^*$ that maximizes the Q-function:
@@ -122,12 +122,71 @@ Q_{\pi^*}(s,a) =
 $$
 
 ### 2.2 Q-learning <a name="q_learning"></a>
-Q-learning is an algorithm made for finding the optimal policy $\pi^*$ by iteratively solving Bellman's optimality equation.
 
-The main ideas are:
-- listing every (state,action) pair in a table, refered to as the Q-table, and randomly initialize every Q-value Q(s,a) in it
-- fixing $\pi$ so that the agent will always take the action with the highest Q-value: $A_t = argmax_{a}Q(s,a)$
- 
+Q-learning is a reinforcement learning algorithm designed to learn an optimal policy $\pi^*$ by iteratively approximating the optimal action-value function $Q_{\pi^*}$.
+
+The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros.  
+In the tabular setting, these values are stored in a **Q-table**.
+
+The agent then interacts with the environment. At each interaction step, it:
+- observes the current state $s$,
+- selects an action $a$, typically using an **exploration strategy**,
+- receives a reward $r$ and transitions to a new state $s'$,
+- updates the corresponding Q-value using the Bellman optimality target.
+
+The Q-learning update rule is:
+$$
+Q(s,a) \leftarrow (1- \alpha)Q(s,a)
++ \alpha \Big[r + \gamma \max_{a'} Q(s',a')\Big],
+$$
+where $\alpha \in (0,1)$ is the learning rate.
+
+By repeatedly applying this update, the **Q-function** converges toward the **optimal Q-function**, and an optimal policy can be:
+$$
+\pi^*(s) = \arg\max_a Q(s,a).
+$$
+
+The **exploration strategy** used in this project is $\varepsilon$-greedy:
+- at time $t$ and state $s$, the agent chooses a random action  
+  $A_t \sim \mathcal{U}(\mathcal{A})$ with probability $\varepsilon_t$,
+- otherwise, it selects the greedy action  
+  $A_t = \arg\max_a Q(s,a)$ with probability $(1 - \varepsilon_t)$.
+
+The exploration rate $\varepsilon_t$ decreases over time, from $\varepsilon_{\max}$ to $\varepsilon_{\min}$.  
+This allows the agent to first explore a wide range of strategies and gradually focus on improving those that perform best.
+
+
+### 2.3 DQN algorithm <a name="DQN_algorithm"></a>
+A major limitation of tabular Q-learning is that it becomes impractical when the state or action space is large.
+
+Deep Q-Networks (DQN) address this limitation by approximating the **Q-function** with a neural network
+$Q_\theta$ parameterized by weights $\theta$.
+
+Rather than solving Bellman’s optimality equation directly, DQN minimizes the **temporal-difference (TD) error**
+between the current Q-value estimate and a target value.
+
+TD error is defined as:
+$$
+Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big]
+$$
+where $Q_{\theta^-}$ is a **target network** whose parameters are held fixed for several training steps to stabilize learning.
+
+The Q-network is trained by minimizing the loss:
+$$
+\mathcal{L}(\theta) = \sum_{(s, a, r, s')} l\big(
+Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big] \big)
+$$
+on a set of $(s, a, r, s')$ tuples stored inside a **replay buffer**. Usually, the loss function $l$ used for DQN is the Huber loss.
+
+The training loop follows these steps:
+- the agent observes a state $s$ and selects an action $a$ using an exploration strategy (e.g. $\varepsilon$-greedy),
+- it transitions to state $s'$, receives reward $r$, and stores the transition $(s,a,r,s')$ in the replay buffer,
+- minibatches of transitions are sampled from the buffer to update $\theta$ via gradient descent,
+- the target network weights $\theta^-$ are periodically updated with $\theta^- \leftarrow \tau \theta + (1 - \tau) \theta^-$.
+
+### 2.4 DDQN update <a name="DDQN_update"></a>
+
+
 ## 3. Training an agant with reinforcement learning <a name="rl_application"></a>
 
 ### 3.1 Environment setup <a name="env_setup"></a>  
