@@ -320,6 +320,8 @@ Terminal states happen in three different scenarios:
 - round ended because the agent outbid and was challenged by the player after,
 - round ended because the agent outbid and another player challenged someone else.
 
+---
+
 #### Q-network
 The Q-network used in this project is the same as the one in [PyTorch's DQN tutorial](#https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html). It is a simple neural network with 3 fully connected layers and Relu as the activation function.
 
@@ -341,9 +343,13 @@ Given the simplicity of the setup (three players with two dice each), this archi
 
 The algorithm used for training the agent is DDQN with masking.
 
+---
+
 #### Warm up
 Since the Q-network is trained on transitions sampled from the replay buffer, a warm-up phase is used to fill the buffer before training begins.
 During this phase, the agent follows the $\varepsilon$-greedy policy with $\varepsilon$ set to $\varepsilon_{max}$.
+
+---
 
 #### Deep learning parameters
 Deep learning parameters were selected across experiments. Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
@@ -360,6 +366,8 @@ Deep learning parameters were selected across experiments. Following values are 
 </center>
 
 Weight decay was added because it improved the agent’s performance during offline training. However, it did not lead to a noticeable improvement during online training.
+
+---
 
 #### RL parameters
 Reinforcement learning parameters were selected across experiments. Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
@@ -465,3 +473,24 @@ Some of these improvements may be added in a future update.
 - DDQN algorithm explanation : https://apxml.com/courses/intermediate-reinforcement-learning/chapter-3-dqn-improvements-variants/double-dqn-ddqn
 
 ## Licence
+MIT License
+
+Copyright (c) [2026] [Alexandre Forestier--Foray]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
