@@ -1,5 +1,8 @@
 # Learning Liar's dice with deep Q-learning
-
+<!-- badges -->
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-DDQN-red)
 
 A reinforcement learning application to Liar's Dice.
 
@@ -12,9 +15,9 @@ A reinforcement learning application to Liar's Dice.
 - [ ] Update variables in demo notebook
 - [x] Remove perudo references
 - [ ] Rename deterministic agent to fixed agent
-- [ ] Added MIT license correctly
-- [ ] Installation process
-- [ ] Add badges
+- [x] Added MIT license correctly
+- [ ] Installation process correctly
+- [x] Add badges
 
 ## Overview
 This project explores the application of deep reinforcement learning to Liar’s Dice, an imperfect-information, turn-based bluffing game.  
@@ -23,16 +26,26 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 
 **Results highlight:** The trained DQN agent achieves ~80% first place rate vs. two simple rule-based opponents after 4000 training games. (See [Result analysis](#result_analysis) for plots and metrics.)
 
-
-
 ## Key Features
 - Custom Liar’s Dice game environment in Python.
-- Deterministic and random baseline opponents.
+- Fixed baseline opponents.
 - Visual tools for data analysis.
 - Reinforcement learning modeling (state format, episode definition, reward definition).
-- DDQN (double DQN) algorithm implementation in PyTorch.
-- Context specific training and testing metrics.
-- Detailed analysis in an interactive notebook.
+- DDQN with action masking algorithm implementation in PyTorch.
+- Project's in an interactive notebook.
+
+## Installation
+
+This project uses **conda** for environment management.
+
+```bash
+git clone [link]
+
+cd your-repo
+
+conda create --name liars-dice-rl --file requirements.txt
+conda activate liars-dice-rl
+```
 
 ## Table of contents
 1. [Liar's dice game explanation](#game_presentation)  
