@@ -13,11 +13,11 @@ A reinforcement learning application to Liar's Dice.
 - [ ] Convert bet into tuples. 
 - [x] Replacing np.stack with np.array in optimize_model function
 - [x] Test training without weight decay
-- [ ] Update variables in demo notebook
+- [x] Update variables in demo notebook
 - [x] Remove perudo references
 - [ ] Rename deterministic agent to fixed agent
 - [x] Added MIT license correctly
-- [ ] Installation process correctly
+- [x] Installation process correctly
 - [x] Add badges
 
 ## Overview
@@ -40,12 +40,12 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 This project uses **conda** for environment management.
 
 ```bash
-git clone [link]
+git clone [https://github.com/Aff54/Reinforcement-learning-applied-to-Liar-s-dice]
 
 cd your-repo
 
-conda create --name liars-dice-rl --file requirements.txt
-conda activate liars-dice-rl
+conda create --name liars_dice_rl --file requirements.txt
+conda activate liars_dice_rl
 ```
 
 ## Table of contents
