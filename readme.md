@@ -1,18 +1,20 @@
 # Learning Liar's dice with deep Q-learning
 
 
-
 A reinforcement learning application to Liar's Dice.
 
 ## To do list
-- [ ] Add mlflow ?
-- [ ] Streamlit app
+- [x] Add mlflow ? Not now
+- [x] Streamlit app ? Next step
 - [ ] Convert bet into tuples. 
 - [ ] Replacing np.stack with np.array in optimize_model function
 - [x] Test training without weight decay
 - [ ] Update variables in demo notebook
 - [ ] Remove perudo references
 - [ ] Rename deterministic agent to fixed agent
+- [ ] Added MIT license correctly
+- [ ] Installation process
+- [ ] Add badges
 
 ## Overview
 This project explores the application of deep reinforcement learning to Liar’s Dice, an imperfect-information, turn-based bluffing game.  
@@ -85,7 +87,7 @@ Additional constraints apply when switching between wilds and non-wilds:
 ---
 
 ### Challenging previous player
-Instead of outbidding, a player may challenge the previous bet by calling either **"liar"** *or **"exact"**. In this case, dice are revealed and previous bet validity is checked.
+Instead of outbidding, a player may challenge the previous bet by calling either **"liar"** * or **"exact"**. In this case, dice are revealed and previous bet validity is checked.
 
 - **"Liar"**: 
   If the true count of dice showing `v` (and/or `1`) is **≥ q**, the challenger loses one die; otherwise the previous player loses one die.
@@ -132,7 +134,7 @@ Q_{\pi^*}(s,a) =
 
 ### 2.2 Q-learning <a name="q_learning"></a>
 
-Q-learning is a reinforcement learning algorithm designed to learn an optimal policy $\pi^*$ by iteratively approximating the optimal action-value function $Q_{\pi^*}$.
+Q-learning is a reinforcement learning algorithm designed to learn an optimal policy $\pi^{*}$ by iteratively approximating the optimal action-value function $Q_{\pi^{*}}$.
 
 The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros.  
 In the tabular setting, these values are stored in a **Q-table**.
@@ -221,7 +223,7 @@ q_{s, a} \leftarrow -10^9 , \forall a \in \mathcal{A}_{illegal}
 ```
 - the agent chooses the action with the highest Q-value: 
 ```math
-a = \argmax_{a}\{q_{s, a}\}_{a \in \mathcal{A}}
+a = \text{arg max}_{a}\{q_{s, a}\}_{a \in \mathcal{A}}
 ```
 During exploration steps, random actions are sampled **uniformly among legal actions only**.
 
