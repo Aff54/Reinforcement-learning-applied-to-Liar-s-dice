@@ -10,7 +10,7 @@ A reinforcement learning application to Liar's Dice.
 - [ ] Replacing np.stack with np.array in optimize_model function
 - [x] Test training without weight decay
 - [ ] Update variables in demo notebook
-- [ ] Remove perudo references
+- [x] Remove perudo references
 - [ ] Rename deterministic agent to fixed agent
 - [ ] Added MIT license correctly
 - [ ] Installation process

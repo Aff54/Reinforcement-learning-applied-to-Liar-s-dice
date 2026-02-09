@@ -18,7 +18,7 @@ def get_possible_actions(last_bet, total_dice):
     if value == 0:
         challenge_last_bet = []
 
-    # Bet is on pacos
+    # Bet is on wilds
     if value == 1:
         upper_values = [[i, j] 
                         for i 
@@ -29,7 +29,7 @@ def get_possible_actions(last_bet, total_dice):
                             in range(quantity + 1, total_dice + 1)]
         possible_actions = challenge_last_bet + upper_quantities + upper_values 
 
-    # Bet is on non pacos values. max(value, 1) is here in case value = 0 (first bet).
+    # Bet is on non wilds values. max(value, 1) is here in case value = 0 (first bet).
     else:
         upper_values = [[quantity, v] 
                         for v 
@@ -38,10 +38,10 @@ def get_possible_actions(last_bet, total_dice):
                             for q 
                             in range(quantity + 1, total_dice + 1) 
                             for v in range(2, 7)]
-        pacoses = [[i, 1] 
+        wilds = [[i, 1] 
                    for i 
                    in range(int(ceil(quantity/2)), total_dice+1)]
-        possible_actions = challenge_last_bet + pacoses + upper_values + upper_quantities
+        possible_actions = challenge_last_bet + wilds + upper_values + upper_quantities
 
     return possible_actions
 
@@ -66,18 +66,18 @@ def get_legal_actions_indices(last_bet, total_dice, action_dict):
     if value == 0:
         challenge_last_bet_indices = []
 
-    # Bet is on pacos
+    # Bet is on wilds
     if value == 1:
         upper_values_indices = [action_dict[tuple([i, j])] for i in range(2*quantity+1, total_dice+1) for j in range(2, 7)]
         upper_quantities_indices = [action_dict[tuple([q, 1])] for q in range(quantity + 1, total_dice + 1)]
         possible_actions_indices = challenge_last_bet_indices + upper_quantities_indices + upper_values_indices 
 
-    # Bet is on non pacos values. max(value, 1) is here in case value = 0 (first bet).
+    # Bet is on non wilds values. max(value, 1) is here in case value = 0 (first bet).
     else:
         upper_values_indices = [action_dict[tuple([quantity, v])] for v in range(max(value, 1) + 1, 7)]
         upper_quantities_indices = [action_dict[tuple([q, v])] for q in range(quantity + 1, total_dice + 1) for v in range(2, 7)]
-        pacoses_indices = [action_dict[tuple([i, 1])] for i in range(int(ceil(quantity/2)), total_dice+1)]
-        possible_actions_indices = challenge_last_bet_indices + pacoses_indices + upper_values_indices + upper_quantities_indices
+        wilds_indices = [action_dict[tuple([i, 1])] for i in range(int(ceil(quantity/2)), total_dice+1)]
+        possible_actions_indices = challenge_last_bet_indices + wilds_indices + upper_values_indices + upper_quantities_indices
 
     return possible_actions_indices
 

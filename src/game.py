@@ -40,7 +40,7 @@ def bet_histogram(bet):
 class Game:
     
     def __init__(self, player_number, max_dice = 5):
-        """Perudo game class. The class allows to play a game between a 
+        """Liar's dice game class. The class allows to play a game between a 
         given number of opponents
 
         Args:
@@ -113,7 +113,7 @@ class Game:
         last_player = self._active_players[-1]
 
         count = np.count_nonzero(total_dice_values == value)
-        # Counting pacoses.
+        # Counting wilds.
         if value > 1:
             count += np.count_nonzero(total_dice_values == 1)
         
