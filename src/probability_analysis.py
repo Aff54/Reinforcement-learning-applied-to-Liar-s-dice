@@ -72,7 +72,7 @@ def bet_exact_probability(bet,
     # If we know current player's hand.
     if player_hand:
         known_count = player_hand.count(value)
-        # Counting pacoses.
+        # Counting wilds.
         if value > 1:
             known_count += player_hand.count(1)
         # Updating parameters of the binomial distribution.

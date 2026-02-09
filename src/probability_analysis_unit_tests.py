@@ -83,7 +83,7 @@ class Test_bet_conditional_probability(unittest.TestCase):
     def test_proper_probability_calculation(self):
         # Testing if probability prior to knowing someone's hand are rightly computed.
 
-        # Case 1: no pacos in current player's hand.
+        # Case 1: no wild in current player's hand.
         n_dice = 11
         last_bet = [4, 3]
         player_hand = [2, 3, 5]
@@ -95,7 +95,7 @@ class Test_bet_conditional_probability(unittest.TestCase):
         self.assertEqual(computed_probability, 
                          expected_probability)
 
-        # Case 2: current player has pacoses in hand.
+        # Case 2: current player has wilds in hand.
         n_dice = 8
         last_bet = [5, 2]
         player_hand = [1, 1, 3]
@@ -153,8 +153,8 @@ class Test_bet_exact_probability(unittest.TestCase):
         # Case 1: no hand is given -> there is no prior knowledge.
         test_cases = [
             # (n_dice, quantity, value, p)
-            (12, 7, 2, 1/3),  # non-pacos
-            (6,  4, 1, 1/6),  # pacos
+            (12, 7, 2, 1/3),  # non-wild
+            (6,  4, 1, 1/6),  # wild
         ]
     
         for n_dice, quantity, value, p in test_cases:
@@ -167,9 +167,9 @@ class Test_bet_exact_probability(unittest.TestCase):
         # Case 2: hands are given -> we have partial knowledge about dice.
         test_cases = [
             # (n_dice, quantity, value, [hand], p)
-            (6, 2, 5, [3, 5, 2], 1/3),    # betting on non-pacos
-            (9, 7, 1, [1, 4, 2, 1], 1/6), # betting on pacos
-            (8, 2, 3, [1, 3, 5], 1/3)     # having pacos in hand
+            (6, 2, 5, [3, 5, 2], 1/3),    # betting on non-wilds
+            (9, 7, 1, [1, 4, 2, 1], 1/6), # betting on wilds
+            (8, 2, 3, [1, 3, 5], 1/3)     # having wilds in hand
         ]
         for n_dice, quantity, value, player_hand, p in test_cases:
             with self.subTest(n_dice=n_dice, quantity=quantity, player_hand = player_hand,value=value):
