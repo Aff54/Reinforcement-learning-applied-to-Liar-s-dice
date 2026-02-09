@@ -35,22 +35,24 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 - Detailed analysis in an interactive notebook.
 
 ## Table of contents
-1. [Liar's dice game presentation](#game_presentation)  
+1. [Liar's dice game explanation](#game_presentation)  
 
 2. [Reinforcement learning theory](#rl_theory)  
-    2.1 [General idea](#general_idea)  
-    2.2 [Q learning](#q_learning)  
+    2.1 [Core idea](#general_idea)  
+    2.2 [Q-learning](#q_learning)  
     2.3 [DQN algorithm](#DQN_algorithm)  
     2.4 [DDQN update](#DDQN_update)  
     2.5 [Masking](#masking)  
 
-3. [Training an agant with reinforcement learning](#rl_application)  
+3. [Training an agent with reinforcement learning](#rl_application)  
     3.1 [Environment setup](#env_setup)  
     3.2 [RL framework application](#rl_framework_application)  
-    3.3 [Training loop](#)  
+    3.3 [RL Training loop](#)  
 
 4.[Result analysis](#result_analysis)
-
+    4.1 [Agent performance](#agent_performance)
+    4.2 [3rd place ratio discussion](#3rd_place_ratio_discussion)
+    4.3 [Conclusion](#conclusion)
 
 5. [Possible improvements](#possible_improvements)
 
@@ -422,7 +424,7 @@ Rewards were chosen for encouraging the agent to make other players lose a dice 
 ## 4. Result analysis <a name="result_analysis"></a>
 
 
-### 4.1 Agent performance
+### 4.1 Agent performance <a name="agent_performance"></a>
 
 The following figure shows the ranking distribution (first/second/third) of the three players - Survivalist (player 1), Survivalist (player 2) and the RL agent (player 3) - across **5,000** evaluation games played after training.
 
@@ -431,7 +433,7 @@ The following figure shows the ranking distribution (first/second/third) of the 
 The trained agent achieved first place in **79.4%** of games with parameters presented in [Section 3](#rl_application).
 
 
-### 4.2 3rd place ratio discussion.
+### 4.2 3rd place ratio discussion <a name="3rd_place_ratio_discussion"></a>
 
 The ranking distribution shows the agent is substantially more likely to finish third than second. While this may appear counterintuitive at first, it can be explained by analyzing its performance in a 1-vs-1 setup.
 
@@ -450,7 +452,7 @@ This interpretation is supported by the below pie charts showing the ranking dis
 The fact that the agent strugles more when multiple players are involved may be explained by the fact that the game is more chaotic with multiple players: since players can only outbid, bets depend on previous players bets and their policies. 
 
 
-### 4.3 Conclusion
+### 4.3 Conclusion <a name="conclusion"></a>
 
 This repository provides a framework for simulating Liar’s Dice with fixed opponents and for training agents using  **DDQN with action masking**. With the configuration presented in this report (three players, two dice each), the trained agent reached first place in **79.4%** of games.
 
