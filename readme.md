@@ -2,7 +2,8 @@
 <!-- badges -->
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-DDQN-red)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.5.1-blue)
+![PyTorch](https://img.shields.io/badge/Reinforcement_learning-DDQN-red)
 
 A reinforcement learning application to Liar's Dice.
 
