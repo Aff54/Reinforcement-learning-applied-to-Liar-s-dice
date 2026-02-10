@@ -137,9 +137,7 @@ Q_{\pi^*}(s,a) =
 
 ### 2.2 Q-learning <a name="q_learning"></a>
 
-Q-learning is a reinforcement learning algorithm designed to learn an optimal policy `$ \pi^* $`
-by iteratively approximating the optimal action-value function `$ Q_{\pi^*} $`.
-
+Q-learning is a reinforcement learning algorithm designed to learn an optimal policy $\pi^*$. It consists in iteratively approximating the optimal action-value function $Q_{\pi^*}$.
 
 The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros.  
 In the tabular setting, these values are stored in a **Q-table**.
