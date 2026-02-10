@@ -12,7 +12,7 @@ This project explores the application of deep reinforcement learning to Liar’s
 This document presents the game mechanics, key reinforcement learning concepts, and their application to this setting.  
 The [demo](demo.ipynb) notebook shows how to use the code to simulate games and train an agent using deep reinforcement learning.
 
-**Results highlight:** The trained DQN agent achieves ~80% first place rate vs. two simple rule-based opponents after 4000 training games. (See [Result analysis](#result_analysis) for plots and metrics.)
+**Results highlight:** The trained DDQN (Double Deep Q-network) agent achieves ~80% first place rate vs. two simple rule-based opponents after 4000 training games. (See [Result analysis](#result_analysis) for plots and metrics.)
 
 ## Key Features
 - Custom Liar’s Dice game environment in Python.
@@ -105,7 +105,7 @@ Many Liar’s Dice variants exist; only the rules described above are implemente
 
 ### 2.1 Core idea <a name="core_idea"></a>
 Reinforcement learning (RL) is a branch of machine learning. It is a framework for training agents to make decisions in an environment by interacting with it.  
-An RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple  
+A RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple  
 $(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
 
 - $\mathcal{S}$ is the state space and $\mathcal{A}$ the action space,
@@ -137,18 +137,17 @@ Q_{\pi^*}(s,a) =
 
 ### 2.2 Q-learning <a name="q_learning"></a>
 
-Q-learning is a reinforcement learning algorithm designed to learn an optimal policy
+Q-learning is a reinforcement learning algorithm designed to learn an optimal policy :
 
 ```math
 \pi^{*}
 ```
 
-by iteratively approximating the optimal action-value function
+by iteratively approximating the optimal action-value function :
 
 ```math
-Q_{\pi^{*}}.
+Q_{\pi^{*}}
 ```
-
 
 The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros.  
 In the tabular setting, these values are stored in a **Q-table**.
@@ -290,8 +289,8 @@ Increasing either the number of opponents or dice significantly increased simula
 #### Game variables
 
 Game variables were handled as follows:
-- Bets are encoded as `[q, v]`, where `q` is the minimum number of dice showing value `v` across all dice in play.
-- A player's hand of n dice is encoded `[d1, d2, ..., dn]`.
+- Bets are encoded as `[q, v]`, where `q` is the minimum number of dice showing value `v` across all dice in play,
+- A player's hand of n dice is encoded `[d1, d2, ..., dn]` where `di` is the i-th die value (and `0` if corresponding die was lost),
 - Player order is randomized at the beginning of each game.
 
 
@@ -301,14 +300,19 @@ Game variables were handled as follows:
 The algorithm used for training the agent **against two fixed policies** is **DDQN** based on [PyTorch's DQN tutorial](#https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html).
 
 ---
+
 #### State modeling
-The states the agent will transition between contain: the number of dice in previous player hand, the number of dice in next player hand, previous' player bet and the agent's hand.  
+The states the agent will transition between contain in sequence: 
+- the number of dice in previous player hand, 
+- the number of dice in next player hand, 
+- previous player's bet
+-  the agent's hand.  
 
+Both **last bet** and **the agent's hand** are encoded as **histograms**. This way, states only incorporate quantities. On the other hand, encoding last bet and the agent's hand as `[q, v]` and `[d1, d2, ..., dn]` in states would mix quantitative and qualitative variables. Switching to histograms contributed to significant improvement in the agent's performance. 
 
-Both **last bet** and **the agent's hand** are encoded as **histograms**. This way, states only incorporate quantities. On the other hand, encoding last bet and the agent's hand as `[q, v]` and `[d1, d2, ..., dn]` in states would mix quantitative and qualitative variables. Switching to histograms contributed to significant improvement in the agent's performance.
+Thus, last bet is encoded as a six values tuple `(0, ..., 0, q, 0, ..., 0)` where the only non-zero entry is at index `v-1` and has value `q`. Similarly, the agent's hand is encoded as  `(q1, q2, q3, q4, q5, q6)` where `qi` is the quantity of dice showing value `i`.
 
-
-For instance, if the player before the agent outbid `[2, 3]` with `2` dice in hand, the player after the agent has `1` die in hand, and the agent's hand is `[4, 1]`, the corresponding state is `(2, 1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0).`
+For instance, if the player before the agent outbid `[2, 3]` with `2` dice in hand, the player after the agent has `1` die in hand, and the agent's hand is `[4, 1]`, the corresponding state is `(2, 1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0)`.
 
 ---
 
@@ -425,7 +429,7 @@ Results presented in [Result analysis](#result_analysis) used the following rewa
 | Agent was called liar or was called liar and lost a dice | -2 |
 | Agent called exact and earned a die back | 2 |
 | Agent outbid without being challenged | 0 |
-| Agent was challenged and challenger lost a dice chalenge | 1 |
+| Agent was challenged and challenger lost a dice | 1 |
 | Agent outbid, next player called exact and earned a dice back| -0.5 |
 | Game ended without the agent challenging or being challenged | 0 |
 </center>
@@ -438,7 +442,7 @@ Rewards were chosen for encouraging the agent to make other players lose a dice 
 
 ### 4.1 Agent performance <a name="agent_performance"></a>
 
-The following figure shows the ranking distribution (first/second/third) of the three players - Survivalist (player 1), Survivalist (player 2) and the RL agent (player 3) - across **5,000** evaluation games played after training.
+The following figure shows the ranking distribution (first/second/third) of the three players - survivalist (player 1), aggressive (player 2) and the RL agent (player 3) - across **5,000** evaluation games played after training.
 
 ![ranking_distribution](images/ranking_distribution.png)
 
@@ -449,7 +453,7 @@ The trained agent achieved first place in **79.4%** of games with parameters pre
 
 The ranking distribution shows the agent is substantially more likely to finish third than second. While this may appear counterintuitive at first, it can be explained by analyzing its performance in a 1-vs-1 setup.
 
-Below figure 2 shows the agent’s ranking distribution against one policy at a time (chosen randomly) for 5000 games.
+Below figure 2 shows the agent’s ranking distribution against one policy at a time (chosen randomly) for 5000 games. In these charts, "agent max proba" played with the survivalist policy while "agent min proba" used the aggressive policy.
 
 ![ranking_distribution_1vs1stribution (1,000 games)](images/ranking_distribution_1vs1.png)
 
@@ -457,7 +461,7 @@ In these 1-vs-1 matches the agent won **97.8 %** of games. This suggests that wh
 
 Thus, the agent's performance in a three-player setup can be interpreted as: the agent either gets eliminated first (20.1 % of games) or survives to reach a 1-vs-1 situation and win almost every time.
 
-This interpretation is supported by the below pie charts showing the ranking distribution in a five-player setup (5000 games). As in a three-player setup, the agent's second place ratio is substantially lower than every other place ratio.
+This interpretation is supported by the below pie charts showing the ranking distribution in a five-player setup (5000 games). In this configuration, player 1 and 2 used the survalist policy, player 3 and 4 used the aggressive policy and player 5 was trained with DDQN. As in a three-player setup, the agent's second place ratio is substantially lower than every other place ratio.
 
 ![ranking_distribution_5_players](images/ranking_distribution_5_players.png)
 
