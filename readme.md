@@ -40,9 +40,9 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 This project uses **conda** for environment management.
 
 ```bash
-git clone [https://github.com/Aff54/Reinforcement-learning-applied-to-Liar-s-dice]
+git clone https://github.com/Aff54/Reinforcement-learning-applied-to-Liar-s-dice.git
 
-cd your-repo
+cd Reinforcement-learning-applied-to-Liar-s-dice
 
 conda create --name liars_dice_rl --file requirements.txt
 conda activate liars_dice_rl
