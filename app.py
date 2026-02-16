@@ -39,16 +39,19 @@ action_list = get_possible_actions(last_bet=last_bet,
 buttons_per_row = 8
 n_rows = math.ceil(len(action_list) / buttons_per_row)
 
-for row in range(n_rows):
-    row_actions = action_list[row*buttons_per_row:(row+1)*buttons_per_row]
-    cols = st.columns(buttons_per_row)
+if not game.game_over:
+    for row in range(n_rows):
+        row_actions = action_list[row*buttons_per_row:(row+1)*buttons_per_row]
+        cols = st.columns(buttons_per_row)
 
-    for i in range(len(row_actions)):
-        action = row_actions[i]
-        if cols[i].button(str(action), key=f"{row}_{i}", use_container_width=True):
-            outcome, message = st.session_state.game.make_a_bet(action)
-            st.rerun()
-            st.write(message)
+        for i in range(len(row_actions)):
+            action = row_actions[i]
+            if cols[i].button(str(action), key=f"{row}_{i}", use_container_width=True):
+                outcome, message = st.session_state.game.make_a_bet(action)
+                if message:
+                    st.markdown(message)
+                st.rerun()
+
 
 
 # ---- Reset ----
