@@ -20,7 +20,7 @@ The [demo](demo.ipynb) notebook shows how to use the code to simulate games and 
 - Visual tools for data analysis.
 - Reinforcement learning modeling (state format, episode definition, reward definition).
 - DDQN with action masking algorithm implementation in PyTorch.
-- Project's in an interactive notebook.
+- Reinforcement learning applicaton code in an interactive notebook.
 
 ## Installation
 
@@ -50,10 +50,10 @@ conda activate liars_dice_rl
     3.2 [RL framework application](#rl_framework_application)  
     3.3 [RL Training loop](#)  
 
-4.[Result analysis](#result_analysis)
-    4.1 [Agent performance](#agent_performance)
-    4.2 [3rd place ratio discussion](#3rd_place_ratio_discussion)
-    4.3 [Conclusion](#conclusion)
+4. [Result analysis](#result_analysis)  
+    4.1 [Agent performance](#agent_performance)  
+    4.2 [3rd place ratio discussion](#3rd_place_ratio_discussion)  
+    4.3 [Conclusion](#conclusion)  
 
 5. [Possible improvements](#possible_improvements)
 
@@ -62,12 +62,12 @@ conda activate liars_dice_rl
 Liar’s Dice is a turn-based bluffing game with imperfect information.  
 Each player starts with 5 dice. At the beginning of each round, all players roll their dice privately, then take turns making a **bet** about the number of dice showing a certain value among all dice in play.
 
-On their turn, a player must either **outbid** the previous **bet** or **challenge** it.
+On their turn, a player must either **outbid** the previous **bet** or **challenge it**.
 
 ---
 
 ### Bet format
-A bet is written as `[q, v]` and means: *there are at least `q` dice showing face `v` across all dice at play*.  
+A bet is written as `[q, v]` and means: *there are **at least** `q` dice showing face `v` across all dice at play*.  
 **Ones are wild**: when `v ≠ 1`, dice showing `1` also count toward as the face of current bet.
 
 ---
@@ -76,21 +76,16 @@ A bet is written as `[q, v]` and means: *there are at least `q` dice showing fac
 Given the previous bet `[q, v]`, a legal outbid must satisfy **one** of the following conditions:
 
 - Increase the face value while keeping the same quantity: `[q, v′]` with `v′ > v`
-- Increase the quantity with any face: `[q′, v′]` with `q′ > q`
+- Increase the quantity with any face: `[q′, v′]` with `q′ > q` and `v' in {1, ..., 6}`
 
 Additional constraints apply when switching between wilds and non-wilds:
-- From wilds to non-wilds (`[q, 1] → [q′, v′ ≠ 1]`):  
-  the new quantity must satisfy  
-  `q′ ≥ 2q + 1`
-- From non-wilds to wilds (`[q, v ≠ 1] → [q′, 1]`):  
-  the quantity may decrease, but must satisfy  
-  `q′ ≥ ceil(q / 2)`
-  *(this is the only way to reduce the quantity in a bet)*
+- From wilds to non-wilds (`[q, 1] → [q′, v′ ≠ 1]`): the new quantity must satisfy `q′ ≥ 2q + 1`
+- From non-wilds to wilds (`[q, v ≠ 1] → [q′, 1]`): the quantity may decrease, but must satisfy  `q′ ≥ ceil(q / 2)` *(this is the only way to reduce the quantity in a bet)*
 
 ---
 
 ### Challenging previous player
-Instead of outbidding, a player may challenge the previous bet by calling either **"liar"** * or **"exact"**. In this case, dice are revealed and previous bet validity is checked.
+Instead of outbidding, a player may challenge the previous bet by calling either **"liar"** or **"exact"**. In this case, dice are revealed and previous bet validity is checked which ends current round:
 
 - **"Liar"**: 
   If the true count of dice showing `v` (and/or `1`) is **≥ q**, the challenger loses one die; otherwise the previous player loses one die.
@@ -105,8 +100,7 @@ Many Liar’s Dice variants exist; only the rules described above are implemente
 
 ### 2.1 Core idea <a name="core_idea"></a>
 Reinforcement learning (RL) is a branch of machine learning. It is a framework for training agents to make decisions in an environment by interacting with it.  
-A RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple  
-$(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
+A RL problem is commonly modeled as a Markov Decision Process (MDP) defined by the tuple $(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
 
 - $\mathcal{S}$ is the state space and $\mathcal{A}$ the action space,
 - $\mathbb{P}(s' \mid s, a)$ is the probability of transitioning from state $s$ to $s'$ after taking action $a$,
@@ -116,7 +110,7 @@ $(\mathcal{S}, \mathcal{A}, \mathbb{P}, r, \gamma)$, where:
 At time $t$, the agent observes a state $S_t \in \mathcal{S}$, selects an action $A_t \in \mathcal{A}$ according to a policy  
 $\pi(a \mid s) = \mathbb{P}(A_t = a \mid S_t = s)$, receives a reward $R_{t+1}$, and transitions to the next state $S_{t+1}$.
 
-The **action-value function** (Q-function) under a policy $\pi$ is defined as the expected discounted sum of future rewards obtained by taking action $a$ in state $s$:
+The **action-value function** (Q-function) under a policy $\pi$ is defined as **the expected discounted sum of future rewards** obtained by taking action $a$ in state $s$:
 ```math
 Q_{\pi}(s,a) =
 \mathbb{E}_{\pi}\Big[\sum_{t=1}^{\infty} \gamma^{t} R_{t}
@@ -149,8 +143,7 @@ by iteratively approximating the optimal action-value function :
 Q_{\pi^{*}}
 ```
 
-The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros.  
-In the tabular setting, these values are stored in a **Q-table**.
+The main idea is to initialize the Q-function values $Q(s,a)$ for all state–action pairs, either randomly or with zeros. In a discrete setting, these values are stored in a **Q-table**.
 
 The agent then interacts with the environment. At each interaction step, it:
 - observes the current state $s$,
@@ -176,8 +169,7 @@ The **exploration strategy** used in this project is $\varepsilon$-greedy:
 - otherwise, it selects the greedy action  
   $A_t = \arg\max_a Q(s,a)$ with probability $(1 - \varepsilon_t)$.
 
-The exploration rate $\varepsilon_t$ decreases over time, from $\varepsilon_{\max}$ to $\varepsilon_{\min}$.  
-This allows the agent to first explore a wide range of strategies and gradually focus on improving those that perform best.
+The exploration rate $\varepsilon_t$ decreases over time, from $\varepsilon_{\max}$ to $\varepsilon_{\min}$. This allows the agent to first explore a wide range of strategies and gradually focus on improving those that perform best.
 
 
 ### 2.3 DQN algorithm <a name="DQN_algorithm"></a>
@@ -193,14 +185,23 @@ TD error is defined as:
 ```math
 Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big]
 ```
-where $Q_{\theta^-}$ is a **target network** whose parameters are held fixed for several training steps to stabilize learning, $Q_{\theta}(s, a)$ the Q-value estimate and $r + \gamma \max_{a'} Q_{\theta^-}(s', a')$ the target value.
+where $Q_{\theta^-}$ is a **target network** whose parameters are held fixed for several training steps to stabilize learning, $Q_{\theta}(s, a)$ is the **Q-value estimate** and $r + \gamma \max_{a'} Q_{\theta^-}(s', a')$ the **target value**.
 
 The Q-network is trained by minimizing the loss:
 ```math
 \mathcal{L}(\theta) = \sum_{(s, a, r, s') \in \mathcal{B}} l\big(
 Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big] \big)
 ```
-on a set of $(s, a, r, s')$ tuples stored inside a **replay buffer** $\mathcal{B}$. Usually, the loss function $l$ used for DQN is the Huber loss.
+on a set of transition $(s, a, r, s')$ tuples stored inside a **replay buffer** $\mathcal{B}$. Usually, the loss function $l$ used for DQN is the Huber loss, defined as follows:
+
+```math
+\mathbb{l}_{\delta}(x) = 
+\begin{cases}
+ \frac{1}{2}x^2 & \text{if } |x| \leq \delta  \\
+  \delta ( |x| - \frac{1}{2}\delta) & \text{otherwise}
+\end{cases}
+```
+The Huber Loss is used for making the Q-network learning more robust against outliers ([source](#https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)). 
 
 The training loop follows these steps:
 - the agent observes a state $s$ and selects an action $a$ using an exploration strategy (e.g. $\varepsilon$-greedy),
@@ -209,11 +210,11 @@ The training loop follows these steps:
 - the target network weights $\theta^-$ are periodically updated with $\theta^- \leftarrow \tau \theta + (1 - \tau) \theta^-$.
 
 ### 2.4 DDQN update <a name="DDQN_update"></a>
-During DDQN training, the **Q-network** tend overestimate state-action values which can lead to a suboptimal policy and unstable training.
+During DQN training, the **Q-network** tend overestimate state-action values which can lead to a suboptimal policy and unstable training ([source](#https://arxiv.org/abs/1509.06461)).
 
 As a solution, the **double DQN (DDQN)** updates the TD error to:
 ```math
-Q_{\theta}(s, a) - \big[r + \gamma  Q_{\theta^-}(s', argmax_{a'}Q_{\theta}(s', a')) \big]
+Q_{\theta}(s, a) - \big[r + \gamma  Q_{\theta^-}(s', \text{argmax}_{a'}Q_{\theta}(s', a')) \big]
 ```
 
 This way, the action in the target value is selected using the **policy network** but its Q-value is still computed by the **target network**.
@@ -251,7 +252,7 @@ Additionally, in DDQN, masks are also applied in optimization steps: when select
 
 This project aims to train an agent to play Liar’s Dice against **2 to 4 opponents**.
 
-To train the agent and evaluate its performance, the opponents are modeled using **fixed policies**: these opponents do not learn.
+To train the agent and evaluate its performance, the opponents are modeled using **fixed policies**: these opponents **do not learn**.
 
 ---
 
@@ -286,7 +287,7 @@ Increasing either the number of opponents or dice significantly increased simula
 
 Game variables were handled as follows:
 - Bets are encoded as `[q, v]`, where `q` is the minimum number of dice showing value `v` across all dice in play,
-- A player's hand of n dice is encoded `[d1, d2, ..., dn]` where `di` is the i-th die value (and `0` if corresponding die was lost),
+- A player's hand of n dice is encoded `[d1, d2, ..., dn]` where `di` is the i-th die value (and is `0` if corresponding die was lost),
 - Player order is randomized at the beginning of each game.
 
 
@@ -352,8 +353,8 @@ The Q-network used in this project is the same as the one in [PyTorch's DQN tuto
 | Neural network parameters     | value      |
 | :-------------: | :-------------: |
 | Input size (state length) | 15 |
-| Output size (total number of possible actions) | 38 |
 | Hidden layer size | 64 |
+| Output size (total number of possible actions) | 38 |
 </center>
 
 Every output unit corresponds to a certain action. Thus, every possible action is matched with an index in a python dict before simulating games.
@@ -389,17 +390,6 @@ Deep learning **parameters were selected across experiments.** Following values 
 
 Weight decay was added because it improved the agent’s performance during offline training. However, it did not lead to a noticeable improvement during online training.
 
-
-The Huber Loss is defined as follows:
-```math
-\mathbb{l}_{\delta}(x) = 
-\begin{cases}
- \frac{1}{2}x^2 & \text{if } |x| \leq \delta  \\
-  \delta ( |x| - \frac{1}{2}\delta) & \text{otherwise}
-\end{cases}
-```
-The Huber Loss is used for making the Q-network learning more robust against outliers ([source](#https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)). 
-
 ---
 
 #### RL parameters
@@ -410,7 +400,7 @@ Reinforcement learning **parameters were selected across experiments.** Followin
 | Parameter     | Value      |
 | :-------------: | :-------------: |
 | Warm-up duration (in games) | $300$ |
-| Training duration (in games) | $5000$ |
+| Training duration (in games) | $4000$ |
 | Testing duration (in games) | $1000$ |
 | Discount factor ($\gamma$) | 1 |
 | soft update factor ($\tau$) | $10^{-3}$ |
@@ -426,9 +416,6 @@ The exploration rate $\varepsilon$ is handled by the `epsilon_rate_scheduler` cl
 The choice of the exponential decay was arbitrary and it could be changed to a linear decay.
 
 Since episode (round) duration is finite, the discount factor $\gamma$ was set to 1.
-
-
-<!-- The term $\frac{10^5}{3 \ \text{ln}(10)}$ served to get $ e^{ - \frac{t}{T}} \leq 10^-{3} $ when $t \geq 10^5$ because offline training tests usually lasted $10^5$ optimization steps on average. Further testing during online training showed that $\frac{1}{4}  \frac{10^5}{3 \ \text{ln}(10)}$ increased convergence speed. -->
 
 The decay rate was chosen so that $\varepsilon$ reaches $\varepsilon_{min}$ in approximatively $1000$ games.
 
@@ -464,7 +451,7 @@ The trained agent achieved first place in **79.4%** of games with parameters pre
 
 ### 4.2 3rd place ratio discussion <a name="3rd_place_ratio_discussion"></a>
 
-The ranking distribution shows the agent is substantially more likely to finish third than second. While this may appear counterintuitive at first, it can be explained by analyzing its performance in a 1-vs-1 setup.
+The ranking distribution shows that the agent is substantially more likely to finish third than second. While this may appear counterintuitive at first, it can be explained by analyzing its performance in a 1-vs-1 setup.
 
 Below figure 2 shows the agent’s ranking distribution against one policy at a time (chosen randomly) for 5000 games. In these charts, "agent max proba" played with the survivalist policy while "agent min proba" used the aggressive policy.
 
@@ -494,7 +481,7 @@ Multiple improvement directions were identified while working on this project:
 
 - training loop computation time could be improved by speeding up fixed policy–related functions in [action_management.py](src/action_management.py) and [deterministic_agents.py](src/deterministic_agents.py). These functions were written to highlight their logic but were not optimized for computational performance,
 - episode definition could be extended from rounds to full games. Taking the end of a game as the only terminal state would encourage the agent to account for action consequences across multiple rounds,
-- episode history could be taken into account by adding past bets made by all players during the current round to the state representation,
+- episode history could be taken into account by adding past bets made by all players during the current round (or game) to the state representation,
 - policy identity could be incorporated by including player policies in the state and adding an embedding layer to the Q-network.
 
 Some of these improvements may be added in a future update.
