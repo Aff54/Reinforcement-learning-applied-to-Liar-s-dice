@@ -230,7 +230,7 @@ In the case of DQN with an $\varepsilon$-greedy policy, masking is applied as fo
 ```math
 \{ q_{s, a} = Q(s, a) \mid \forall a \in \mathcal{A} \}
 ```
-- Q-values corresponding to illegal actions are masked:
+- Q-values corresponding to illegal actions are set to an arbitrarily large negative value ($-10^9$ in this project):
 ```math
 q_{s, a} \leftarrow -10^9 , \forall a \in \mathcal{A}_{illegal}
 ```
@@ -356,7 +356,7 @@ The Q-network used in this project is the same as the one in [PyTorch's DQN tuto
 
 Every output unit corresponds to a certain action. Thus, every possible action is matched with an index in a python dict before simulating games.
 
-Given the simplicity of the setup (three players with two dice each), this architecture was deemed sufficient for starting with; and showed to be sufficient (See [Result analysis](#result_analysis)).
+Given the simplicity of the setup (three players with two dice each), this architecture was deemed sufficient for starting with; and showed to be sufficient (See [Result analysis](#result_analysis)). Thus, no additional architectural modifications were tested except varying the hidden-layer sizes.
 
 
 ### 3.3 RL Training loop <a name="training_loop"></a>
@@ -372,7 +372,7 @@ During this phase, the agent follows the $\varepsilon$-greedy policy with $\vare
 ---
 
 #### Deep learning parameters
-Deep learning parameters were selected across experiments. Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
+**Deep learning parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
 
 <center>
 
@@ -387,10 +387,21 @@ Deep learning parameters were selected across experiments. Following values are 
 
 Weight decay was added because it improved the agent’s performance during offline training. However, it did not lead to a noticeable improvement during online training.
 
+
+The Huber Loss is defined as follows:
+```math
+\mathbb{l}_{\delta}(x) = 
+\begin{cases}
+ \frac{1}{2}x^2 & \text{if } |x| \leq \delta  \\
+  \delta ( |x| - \frac{1}{2}\delta) & \text{otherwise}
+\end{cases}
+```
+The Huber Loss is used for making the Q-network learning more robust against outliers ([source](#https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)). 
+
 ---
 
 #### RL parameters
-Reinforcement learning parameters were selected across experiments. Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
+**Reinforcement learning parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
 
 <center>
 
@@ -426,7 +437,7 @@ Results presented in [Result analysis](#result_analysis) used the following rewa
 | Situation     | Reward      |
 | :-------------: | :-------------: |
 | Agent called liar and was right | 1 |
-| Agent was called liar or was called liar and lost a dice | -2 |
+| Agent called liar or was called liar on and lost a dice | -2 |
 | Agent called exact and earned a die back | 2 |
 | Agent outbid without being challenged | 0 |
 | Agent was challenged and challenger lost a dice | 1 |
@@ -434,7 +445,7 @@ Results presented in [Result analysis](#result_analysis) used the following rewa
 | Game ended without the agent challenging or being challenged | 0 |
 </center>
 
-Rewards were chosen for encouraging the agent to make other players lose a dice while prioritizing its own survival.
+Rewards were chosen for encouraging the agent to make other players lose a dice ($+1$ in this case) while prioritizing its own survival ($\pm 2$ when the agent loses or taking back a die).
 
 
 ## 4. Result analysis <a name="result_analysis"></a>
