@@ -10,9 +10,9 @@ A reinforcement learning application to Liar's Dice.
 ## Overview
 This project explores the application of deep reinforcement learning to Liar’s Dice, an imperfect-information, turn-based bluffing game.  
 This document presents the game mechanics, key reinforcement learning concepts, and their application to this setting.  
-The [demo](demo.ipynb) notebook shows how to use the code to simulate games and train an agent using deep reinforcement learning.
+The [demo](demo.ipynb) notebook shows how to use the code to simulate games and train an agent against multiple fixed policies.
 
-**Results highlight:** The trained DDQN (Double Deep Q-network) agent achieves ~80% first place rate vs. two simple rule-based opponents after 4000 training games. (See [Result analysis](#result_analysis) for plots and metrics.)
+**Results highlight:** The trained DDQN (Double Deep Q-network) agent achieves ~79% first place rate vs. two simple rule-based opponents after 4000 training games. (See [Result analysis](#result_analysis) for plots and metrics.)
 
 ## Key Features
 - Custom Liar’s Dice game environment in Python.
@@ -251,23 +251,19 @@ Additionally, in DDQN, masks are also applied in optimization steps: when select
 
 This project aims to train an agent to play Liar’s Dice against **2 to 4 opponents**.
 
-To train the agent and evaluate its performance, the opponents are modeled using **fixed policies**. These opponents do not learn.
+To train the agent and evaluate its performance, the opponents are modeled using **fixed policies**: these opponents do not learn.
 
 ---
 
 #### Fixed opponent policies
 
-Three baseline opponent types are implemented:
+Three baseline player types are implemented:
 
-- **Survivalist policy**  
-  At each turn, this agent selects the legal action (calling *"liar"*, *"exact"*, or outbidding) with the **highest estimated probability of being true**, given its current hand.  
-  In case of ties, the most aggressive action (highest quantity and/or value) is chosen.
+- **Survivalist policy**: At each turn, this agent selects the legal action (calling *"liar"*, *"exact"*, or outbidding) with the **highest estimated probability of being true**, given its current hand. In case of ties, the most aggressive action (highest quantity and/or value) is chosen.
 
-- **Aggressive policy**  
-  At each turn, it selects the action with the **lowest probability of being true** among those whose probability exceeds a predefined threshold (50% by default). This policy favors high quantity/value bets while maintaining a minimum survival probability.
+- **Aggressive policy**: At each turn, it selects the action with the **lowest probability of being true** among those whose probability exceeds a predefined threshold (50% by default). This policy favors high quantity/value bets while maintaining a minimum survival probability.
 
-- **Random policy**  
-  At each turn, this agent selects a legal action at random.
+- **Random policy**: At each turn, this agent selects a legal action at random. 
 
 For survivalist and aggressive policies, action probabilities are computed using a **binomial distribution conditioned on the player’s hand**.
 
@@ -303,10 +299,10 @@ The algorithm used for training the agent **against two fixed policies** is **DD
 
 #### State modeling
 The states the agent will transition between contain in sequence: 
-- the number of dice in previous player hand, 
-- the number of dice in next player hand, 
-- previous player's bet
--  the agent's hand.  
+- the number of dice in previous player hand (one value), 
+- the number of dice in next player hand (one value), 
+- previous player's bet (two values),
+-  the agent's hand (values up to the number of dice per player at the beginning of the game).  
 
 Both **last bet** and **the agent's hand** are encoded as **histograms**. This way, states only incorporate quantities. On the other hand, encoding last bet and the agent's hand as `[q, v]` and `[d1, d2, ..., dn]` in states would mix quantitative and qualitative variables. Switching to histograms contributed to significant improvement in the agent's performance. 
 
@@ -317,15 +313,21 @@ For instance, if the player before the agent outbid `[2, 3]` with `2` dice in ha
 ---
 
 #### Terminal states
-In the case of Liar's dice, episodes were defined as rounds. Thus, **terminal states** are states observed by the agent just before the end of a round, which can only be ended by a challenge.  
-This way, a state-action Q-value accounts for every state and move the agent would witness and take until the end of the round.
+In the case of Liar's dice, episodes were defined as rounds. Thus, **terminal states** correspond to the end of a round. They are encoded as `None` and require no action.
 
-Terminal states are encoded as `None` and require no action.
+This way, a state-action Q-value accounts for every state and move the agent would witness and take until the end of the round.
 
 ---
 
 #### Transition management
-Transitions stored in the replay buffer are composed of: the state witnessed by the agent, selected action, the state it transitioned into, corresponding reward and a legal action mask. The corresponding format is: `(s, a, s', r, mask)`
+Transitions stored in the replay buffer are composed of: 
+- the state witnessed by the agent, 
+- selected action, 
+- the state it transitioned into, 
+- corresponding reward 
+- a legal action mask.
+
+The corresponding format is: `(s, a, s', r, mask)`
 
 Legal action masks are arrays of legal action indices in the Q-network output. In the case of terminal states, legal action masks are empty arrays.
 
@@ -372,7 +374,7 @@ During this phase, the agent follows the $\varepsilon$-greedy policy with $\vare
 ---
 
 #### Deep learning parameters
-**Deep learning parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
+Deep learning **parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
 
 <center>
 
@@ -401,7 +403,7 @@ The Huber Loss is used for making the Q-network learning more robust against out
 ---
 
 #### RL parameters
-**Reinforcement learning parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
+Reinforcement learning **parameters were selected across experiments.** Following values are the ones used for producing results presented in [Result analysis](#result_analysis).
 
 <center>
 
