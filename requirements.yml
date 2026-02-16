@@ -1,0 +1,14 @@
+name: liars_dice_rl
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - numpy
+  - pandas
+  - matplotlib
+  - tqdm
+  - scipy

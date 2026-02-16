@@ -31,7 +31,7 @@ git clone https://github.com/Aff54/Reinforcement-learning-applied-to-Liar-s-dice
 
 cd Reinforcement-learning-applied-to-Liar-s-dice
 
-conda create --name liars_dice_rl --file requirements.txt
+conda env create -f requirements.yml
 conda activate liars_dice_rl
 ```
 
