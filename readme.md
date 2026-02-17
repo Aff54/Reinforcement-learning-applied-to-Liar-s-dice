@@ -491,3 +491,7 @@ Some of these improvements may be added in a future update.
 - PyTorch's reinforcement learning tutorial : https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 - Methods for improving DQN: https://towardsdatascience.com/techniques-to-improve-the-performance-of-a-dqn-agent-29da8a7a0a7e/
 - DDQN algorithm explanation : https://apxml.com/courses/intermediate-reinforcement-learning/chapter-3-dqn-improvements-variants/double-dqn-ddqn
+
+## Credits
+
+Author: Alexandre Forestier Foray
