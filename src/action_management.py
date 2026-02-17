@@ -81,9 +81,12 @@ def get_legal_actions_indices(last_bet, total_dice, action_dict):
 
     return possible_actions_indices
 
-def get_legal_actions_mask(last_bet, total_dice, action_dict):
 
-    possible_actions_indices = get_legal_actions_indices(last_bet, total_dice, action_dict)
+def get_legal_actions_mask(last_bet, total_dice, action_dict):
+    # Returns legal action mask as a binary array.
+    possible_actions_indices = get_legal_actions_indices(last_bet,
+                                                         total_dice,
+                                                         action_dict)
     mask = np.zeros(len(action_dict), dtype=bool)
     mask[possible_actions_indices] = True
     return mask

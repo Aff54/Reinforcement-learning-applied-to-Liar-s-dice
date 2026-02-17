@@ -7,13 +7,12 @@ import matplotlib.pyplot as plt
 from scipy.stats import binom
 from math import ceil
 import unittest
-import math
 
 # --------------------------------------------------------
 # tested functions
 # --------------------------------------------------------
 
-from utils.probability_analysis import bet_probability, bet_conditional_probability, bet_exact_probability
+from src.probability_analysis import bet_probability, bet_conditional_probability, bet_exact_probability
 
 # --------------------------------------------------------
 # class definition
