@@ -195,7 +195,7 @@ Q_{\theta}(s, a) - \big[r + \gamma \max_{a'} Q_{\theta^-}(s', a') \big] \big)
 on a set of transition $(s, a, r, s')$ tuples stored inside a **replay buffer** $\mathcal{B}$. Usually, the loss function $l$ used for DQN is the Huber loss, defined as follows:
 
 ```math
-\mathbb{l}_{\delta}(x) = 
+l_{\delta}(x) = 
 \begin{cases}
  \frac{1}{2}x^2 & \text{if } |x| \leq \delta  \\
   \delta ( |x| - \frac{1}{2}\delta) & \text{otherwise}
