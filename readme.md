@@ -302,6 +302,7 @@ The algorithm used for training the agent **against two fixed policies** is **DD
 The states the agent will transition between contain in sequence: 
 - the number of dice in previous player hand (one value), 
 - the number of dice in next player hand (one value), 
+- the number of total dice currently in game (one value),
 - previous player's bet (two values),
 -  the agent's hand (values up to the number of dice per player at the beginning of the game).  
 
@@ -309,7 +310,7 @@ Both **last bet** and **the agent's hand** are encoded as **histograms**. This w
 
 Thus, last bet is encoded as a six values tuple `(0, ..., 0, q, 0, ..., 0)` where the only non-zero entry is at index `v-1` and has value `q`. Similarly, the agent's hand is encoded as  `(q1, q2, q3, q4, q5, q6)` where `qi` is the quantity of dice showing value `i`.
 
-For instance, if the player before the agent outbid `[2, 3]` with `2` dice in hand, the player after the agent has `1` die in hand, and the agent's hand is `[4, 1]`, the corresponding state is `(2, 1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0)`.
+For instance, if the player before the agent outbid `[2, 3]` with `2` dice in hand, the player after the agent has `1` die in hand, and the agent's hand is `[4, 1]` (`2` dice), the corresponding state is `(2, 1, 5, 0, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0)`.
 
 ---
 
