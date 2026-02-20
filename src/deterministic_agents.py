@@ -1,6 +1,7 @@
 # ---- Regular Packag ----
 import random
 import numpy as np
+from functools import lru_cache 
 
 # ---- Custom packages ----
 from .probability_analysis import bet_conditional_probability, bet_exact_probability
@@ -46,6 +47,7 @@ def agent_random(last_bet,
     return action
 
 
+@lru_cache(maxsize=None)
 def agent_max_probability(last_bet,
                           total_dice,
                           player_hand,
@@ -111,6 +113,7 @@ def agent_max_probability(last_bet,
     return action
 
 
+@lru_cache(maxsize=None)
 def agent_min_probability(last_bet,
                           total_dice,
                           player_hand,

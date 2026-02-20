@@ -53,9 +53,9 @@ def test_agents(max_dice,
                 #print(f"RL agent plays {action} in state {state}")
 
             else: # player_object is a deterministic function.
-                action = player_object(last_bet = last_bet,
+                action = player_object(last_bet = tuple(last_bet),
                                        total_dice = n_dice,
-                                       player_hand = turn_player_hand,
+                                       player_hand = tuple(turn_player_hand),
                                        verbose = verbose)
             if verbose:
                 print(action)
