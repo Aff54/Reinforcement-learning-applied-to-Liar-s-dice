@@ -11,6 +11,7 @@ from .action_management import get_possible_actions
 # --------------------------------------------------------
 
 def hand_histogram(player_hand):
+    # Convert a hand in format [d1, d2, ...] to a histogram.
     counts = [0] * 6
     for value in player_hand:
         counts[value - 1] += 1
@@ -18,7 +19,7 @@ def hand_histogram(player_hand):
 
 
 def bet_histogram(bet):
-        
+    # Convert a bet in format [q, v] to a histogram.
     counts = [0] * 6
     quantity = bet[0]
     value = bet[1]

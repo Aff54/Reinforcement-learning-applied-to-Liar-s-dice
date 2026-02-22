@@ -56,6 +56,26 @@ class RLAgent():
 
 
 class RLAgentOnline():
+    """Class used for training an agent using reinforcement learning. 
+    A class instance stores every transition the agent went through.
+
+    How to use during training:
+        - instantiate class as rl_agent
+        - start a game using GameRL instance
+        - for each game:
+            - during the agent's turn, use rl_agent.epsilon_greedy_select_action
+              for action selection (it stores current transition's first 
+              state and action)
+            - update game state with bet_outcome = game.make_a_bet,
+            - use rl_agent.receive_outcome for saving selected action outcome
+              (it stores current transition's second state and corresponding 
+              reward).
+
+    Warning: when a round ends without the rl_agent challenging someone or being 
+    challenged, use rl_agent.receive_outcome with corresponding outcome: 
+    this will set current transition's second state to a terminal state with 
+    corresponding reward.
+    """
 
     def __init__(self, 
                  n_states, 
@@ -66,6 +86,21 @@ class RLAgentOnline():
                  transitions_tuple,
                  memory_capacity,
                  DQN_class):
+        """Initialize class instance
+
+        Args:
+            n_states (int): state length.
+            n_actions (int): total number of possible actions.
+            action_dict (dict): dict matching every action with an unique index.
+            reverse_action_dict (dict): dict matching every action index with 
+            corresponding action.
+            reward_dict (dict): dict matching every action outcome to a reward.
+            transitions_tuple (namedtuple): transition format.
+            memory_capacity (int): maximum number of transition stored in 
+            self.memory. If memory is full, older transitions will be removed 
+            when saving new transitions.
+            DQN_class (__main__.DQN): policy network used for action selection.
+        """
 
         self.policy_network = DQN_class(n_states, n_actions)
         self.n_states = n_states
@@ -85,6 +120,8 @@ class RLAgentOnline():
         self._rest_histories()
 
     def get_q_values(self, state):
+        # Return every action's q-value using policy_network.
+
         state_tensor = torch.tensor(state, dtype=torch.float32)
         self.policy_network.eval()
         with torch.no_grad():
@@ -92,11 +129,22 @@ class RLAgentOnline():
         return q_values
 
     def select_action(self, last_bet, total_dice, state):
+        """Return the action with highest q-value using policy network.
+
+        Args:
+            last_bet (list): last bet. Format: [quantity, value].
+            total_dice (int): total number of dice currently in game.
+            state (tuple): current state.
+
+        Returns:
+            list : action with highest q value among legal actions. 
+            Format: [quantity, value]
+        """
 
         # Computing legal actions mask
         legal_actions_mask = self._mask_function(last_bet = last_bet, 
-                                                    total_dice = total_dice,
-                                                    action_dict = self.action_dict)
+                                                 total_dice = total_dice,
+                                                 action_dict = self.action_dict)
         tensor_mask = torch.from_numpy(legal_actions_mask)
         
         # Q values inference
@@ -116,7 +164,25 @@ class RLAgentOnline():
                                      epsilon, 
                                      game_index, 
                                      verbose):
-        
+        """Return an action according to epsilon-greedy policy. 
+        Using this method keeps track of transitions the agent is going through.
+
+        Args:
+            last_bet (list): last bet. Format: [quantity, value].
+            total_dice (int): total number of dice currently in game.
+            state (tuple): current state: last transition's second state and 
+            current transition's first state.
+            epsilon (float): probability of choosing an action at random.
+            game_index (int): index corresponding to current game. 
+            Used for analyzing history.
+            verbose (bool): displaying messages on the agent's decisions when 
+            true.
+
+        Returns:
+            list : action from epsilon-greedy selection. 
+            Format: [quantity, value]
+        """
+
         sample = random.random()
         if sample <= epsilon:
             possible_actions = get_possible_actions(last_bet = last_bet, 
@@ -196,6 +262,9 @@ class RLAgentOnline():
                       current_state,
                       action,
                       game_index):
+        # Stores a state/action in history lists. If a state-action pair 
+        # is already stored, stores corresponding transition with the 
+        # transition's last state.
 
         if self._state_history:
             
@@ -212,6 +281,14 @@ class RLAgentOnline():
     def receive_outcome(self, 
                         bet_outcome_index, 
                         game_index):
+        """Save reward corresponding to an action's outcome to _reward_history.
+
+        Args:
+            bet_outcome_index (int): index corresponding to a specific outcome: 
+            challenging someone and losing, being challenged and winning, ...
+            game_index (int): index corresponding to current game. 
+            Used for analyzing history.
+        """
 
         if self._state_history:
             reward = self.reward_dict[bet_outcome_index]
@@ -244,20 +321,17 @@ class EpsilonScheduler:
     """
     Epsilon decay scheduler for epsilon-greedy policy.
 
-    Common usage pattern:
+    How to use:
         eps = scheduler.get_epsilon()
         # use eps to choose action
         scheduler.step()
 
-    Parameters
-    ----------
-    eps_max : float
-        Initial epsilon.
-    eps_min : float
-        Lower bound for epsilon.
-    tau : float
-        Decay time constant (units = steps.
+    Parameters:
+        eps_max (float): Initial epsilon.
+        eps_min (float): Lower bound for epsilon.
+        tau (float): Decay time constant.
     """
+
     def __init__(self, eps_max = 1.0, eps_min = 0.2, tau = 10000):
         if not (0 <= eps_min <= eps_max <= 1):
             raise ValueError("Require 0 <= eps_min <= eps_max <= 1")

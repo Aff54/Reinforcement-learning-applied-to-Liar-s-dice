@@ -201,6 +201,19 @@ def agent_min_probability(last_bet,
 # --------------------------------------------------------
 
 class Agent():
+    """Class used for keeping track of a deterministic policy history. Used For
+    offline training.
+
+    How to use:
+        - during the player's turn, get an action from policy with self.make_a_bet
+        - use game.make_a_bet for updating game state according to the action
+        - use self.receive_outcome for saving new game state: a new transition is 
+        stored in self._memory.
+    
+    Warning: when game ends without player challenging someone or being 
+    challenged, use self.receive_outcome with corresponding outcome number: 
+    this will save the round's last transition with a terminal state.
+    """
 
     def __init__(self,
                  agent_function,
