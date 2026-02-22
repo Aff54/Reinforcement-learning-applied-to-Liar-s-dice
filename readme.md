@@ -57,6 +57,9 @@ conda activate liars_dice_rl
 
 5. [Possible improvements](#possible_improvements)
 
+6. [Updates](#updates)  
+  6.1 [Computation optimization](#computation_optimization)
+
 ## 1. Liar's dice game explanation <a name="game_presentation"></a>
 
 Liar’s Dice is a turn-based bluffing game with imperfect information.  
@@ -480,12 +483,21 @@ The framework can scale to more players and more dice, but at the cost of signif
 
 Multiple improvement directions were identified while working on this project:
 
-- training loop computation time could be improved by speeding up fixed policy–related functions in [action_management.py](src/action_management.py) and [deterministic_agents.py](src/deterministic_agents.py). These functions were written to highlight their logic but were not optimized for computational performance,
-- episode definition could be extended from rounds to full games. Taking the end of a game as the only terminal state would encourage the agent to account for action consequences across multiple rounds,
-- episode history could be taken into account by adding past bets made by all players during the current round (or game) to the state representation,
-- policy identity could be incorporated by including player policies in the state and adding an embedding layer to the Q-network.
+- [x] training loop computation time could be improved by speeding up fixed policy–related functions in [action_management.py](src/action_management.py) and [deterministic_agents.py](src/deterministic_agents.py). These functions were written to highlight their logic but were not optimized for computational performance,
+- [ ] episode definition could be extended from rounds to full games. Taking the end of a game as the only terminal state would encourage the agent to account for action consequences across multiple rounds,
+- [ ] episode history could be taken into account by adding past bets made by all players during the current round (or game) to the state representation,
+- [ ] policy identity could be incorporated by including player policies in the state and adding an embedding layer to the Q-network,
+- [ ] self play could be used for training the agent.
 
 Some of these improvements may be added in a future update.
+
+## 6. Updates <a name="updates"></a>
+
+### 6.1 Computation optimization <a name="computation_optimization"></a>
+
+<ins>Date:</ins> 22/02/2026  
+
+Adding lru_cache decorator to fixed policy's functions (`agent_max_probability` and `agent_min_probability` in [deterministic_agents.py](src/deterministic_agents.py)) significantly improved training duration: it went down from 30 minutes on average to 5 minutes on average.
 
 
 ## Links
