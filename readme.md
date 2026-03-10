@@ -128,8 +128,8 @@ Q_{\pi^*}(s,a) = \max_{\pi} Q_{\pi}(s,a).
 The optimal Q-function satisfies the **Bellman optimality equation**:
 ```math
 Q_{\pi^*}(s,a) =
-\mathbb{E}_{S' \sim \mathbb{P}(\cdot \mid s,a)}
-\Big[r(s,a,S') + \gamma \max_{a'} Q_{\pi^*}(S',a')\Big].
+\mathbb{E}_{\pi}
+\Big[r(s,a,S') + \gamma \max_{a'} Q_{\pi^*}(S',a') \Big|\, S = s, A = a \Big].
 ```
 
 ### 2.2 Q-learning <a name="q_learning"></a>
